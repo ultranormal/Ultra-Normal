@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Ultra Normal</title>
+  <meta name="description" content="Trail running content, physio advice, and one honest comeback story. Updated weekly.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">ULTRA <span>NORMAL</span></a>
+      <div class="nav__links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="blog.html" class="active">Blog</a>
+        <a href="work-with-me.html">Work with me</a>
+      </div>
+      <a href="work-with-me.html#enquire" class="nav__cta">Book a session</a>
+      <button class="nav__burger" id="burger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav__mobile" id="mobileNav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="blog.html">Blog</a>
+    <a href="work-with-me.html">Work with me</a>
+    <a href="work-with-me.html#enquire" style="color:#D95F2B; margin-top:8px;">Book a session →</a>
+  </div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="container">
+      <span class="eyebrow eyebrow--light">From the trail</span>
+      <h1 class="page-hero__title">What I'm learning.</h1>
+      <p class="page-hero__sub">Training updates, physio takes, and the AI experiment. Honest, weekly, from the middle of the comeback.</p>
+    </div>
+  </div>
+
+  <!-- BLOG -->
+  <section class="section">
+    <div class="container">
+
+      <!-- Filters -->
+      <div class="blog-filters">
+        <button class="filter-btn active" data-filter="all">All posts</button>
+        <button class="filter-btn" data-filter="comeback">The comeback</button>
+        <button class="filter-btn" data-filter="physio">Physio brain</button>
+        <button class="filter-btn" data-filter="ai">AI experiment</button>
+        <button class="filter-btn" data-filter="gear">Gear</button>
+      </div>
+
+      <!-- Featured -->
+      <div class="blog-featured">
+        <div class="blog-featured__thumb">🌲</div>
+        <div class="blog-featured__body">
+          <span class="blog-featured__tag">The comeback · Week 1</span>
+          <h2 class="blog-featured__title">Why I chose an AI coach for my comeback (and what that says about me as a physio)</h2>
+          <p class="blog-featured__excerpt">Six months ago I couldn't run to the end of my street. Now I'm twelve weeks out from Surf Coast Century, and the person writing my training plan is an algorithm. Here's the honest version of how that happened and why I think it might actually be the right call.</p>
+          <a href="#" class="btn btn--primary" style="margin-top:20px; display:inline-block;">Read post</a>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="blog-grid">
+        <div class="blog-card" data-category="physio">
+          <div class="blog-card__thumb" style="background:#2C3D2F;">🦴</div>
+          <div class="blog-card__body">
+            <span class="blog-card__tag">Physio brain · Week 2</span>
+            <h3 class="blog-card__title">Load management basics — what I'm actually watching for</h3>
+            <p class="blog-card__excerpt">Not heart rate zones. Not pace. The thing most runners ignore until it's too late.</p>
+          </div>
+        </div>
+        <div class="blog-card" data-category="comeback">
+          <div class="blog-card__thumb" style="background:#3a2218;">🏃</div>
+          <div class="blog-card__body">
+            <span class="blog-card__tag">The comeback · Week 3</span>
+            <h3 class="blog-card__title">Three weeks in — what's changed (and what hasn't)</h3>
+            <p class="blog-card__excerpt">The honest update. My body, my brain, and one thing the AI got completely wrong.</p>
+          </div>
+        </div>
+        <div class="blog-card" data-category="physio">
+          <div class="blog-card__thumb" style="background:#1a2a1a;">💪</div>
+          <div class="blog-card__body">
+            <span class="blog-card__tag">Physio brain · Week 4</span>
+            <h3 class="blog-card__title">Building aerobic base without breaking down — a physio's take</h3>
+            <p class="blog-card__excerpt">The research, the practice, and what I'm doing differently this time around.</p>
+          </div>
+        </div>
+        <div class="blog-card" data-category="physio">
+          <div class="blog-card__thumb" style="background:#1a1a30;">🍑</div>
+          <div class="blog-card__body">
+            <span class="blog-card__tag">Physio brain · Week 5</span>
+            <h3 class="blog-card__title">Why glutes matter more than your watch thinks</h3>
+            <p class="blog-card__excerpt">If I had a dollar for every runner I've seen with weak glutes and an expensive GPS watch...</p>
+          </div>
+        </div>
+        <div class="blog-card" data-category="ai">
+          <div class="blog-card__thumb" style="background:#2a1a1a;">🤖</div>
+          <div class="blog-card__body">
+            <span class="blog-card__tag">AI experiment · Week 5</span>
+            <h3 class="blog-card__title">Adding strength to my AI plan — and why I had to override it</h3>
+            <p class="blog-card__excerpt">The AI knows training. My body knows itself. What happens when they disagree.</p>
+          </div>
+        </div>
+        <div class="blog-card" data-category="comeback">
+          <div class="blog-card__thumb" style="background:#2a2a1a;">✨</div>
+          <div class="blog-card__body">
+            <span class="blog-card__tag">The comeback · Week 6</span>
+            <h3 class="blog-card__title">Six week update — the honest numbers</h3>
+            <p class="blog-card__excerpt">What the data says, what my body says, and why they're different things.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMAIL CAPTURE -->
+  <section class="section section--dark">
+    <div class="container">
+      <div class="email-capture">
+        <span class="eyebrow eyebrow--light">Weekly in your inbox</span>
+        <h2 class="section__title" style="color:var(--dust);">Don't miss a week.</h2>
+        <p class="section__sub" style="margin: 12px auto 0; text-align:center; color:var(--stone);">Training updates, physio tips, and the comeback in real time. No spam, unsubscribe any time.</p>
+        <form class="email-capture__form">
+          <input class="email-capture__input" type="email" placeholder="your@email.com" required>
+          <button class="email-capture__btn" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div>
+          <p class="footer__logo">ULTRA <span>NORMAL</span></p>
+          <p class="footer__tagline">For people who just keep going. Trail running · Physio · Life.</p>
+        </div>
+        <div>
+          <p class="footer__heading">Navigate</p>
+          <div class="footer__links">
+            <a href="about.html">About</a>
+            <a href="blog.html">Blog</a>
+            <a href="work-with-me.html">Work with me</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer__heading">Connect</p>
+          <div class="footer__links">
+            <a href="https://instagram.com/ultranormal" target="_blank">Instagram</a>
+            <a href="https://youtube.com/@ultranormal" target="_blank">YouTube</a>
+            <a href="work-with-me.html#enquire">Book a session</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">© 2026 Ultra Normal. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
