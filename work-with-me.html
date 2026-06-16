@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Work with Me — Ultra Normal</title>
-  <meta name="description" content="Physio services for trail runners and everyday athletes. Book a session or submit an enquiry.">
+  <meta name="description" content="Physio services for runners. Assessment, load management, and return to sport.">
   <style>
 /* Ultra Normal — Brand Stylesheet */
 
@@ -401,20 +401,30 @@ ul { list-style: none; }
   .footer__inner { gap: 32px; }
 }
 
-</style>
+.nav__logo { background: none; padding: 0; display: flex; align-items: center; }
+.nav__logo svg { display: block; }
+.footer__logo { margin-bottom: 12px; }
+
+  </style>
 </head>
 <body>
-
   <nav class="nav">
     <div class="nav__inner">
-      <a href="index.html" class="nav__logo">ULTRA <span>NORMAL</span></a>
+      <a href="index.html" class="nav__logo"><svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ultra Normal">
+  <path d="M6 5 L6 33 Q6 45 18 45 Q30 45 30 33 L30 5" stroke="#F5F2EC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <path d="M30 5 L30 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <path d="M30 5 L50 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <path d="M50 5 L50 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <text x="64" y="26" font-family="DM Sans,system-ui,sans-serif" font-size="15" font-weight="500" fill="#F5F2EC" letter-spacing="-0.01em">ULTRA</text>
+  <text x="64" y="44" font-family="DM Sans,system-ui,sans-serif" font-size="10" font-weight="400" fill="#4A7C59" letter-spacing="0.14em">NORMAL</text>
+</svg></a>
       <div class="nav__links">
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
         <a href="blog.html">Blog</a>
-        <a href="work-with-me.html" class="active">Work with me</a>
+        <a href="work-with-me.html">Work with me</a>
       </div>
-      <a href="#enquire" class="nav__cta">Book a session</a>
+      <a href="work-with-me.html#enquire" class="nav__cta">Book a session</a>
       <button class="nav__burger" id="burger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -425,60 +435,58 @@ ul { list-style: none; }
     <a href="about.html">About</a>
     <a href="blog.html">Blog</a>
     <a href="work-with-me.html">Work with me</a>
-    <a href="#enquire" style="color:#D95F2B; margin-top:8px;">Book a session →</a>
+    <a href="work-with-me.html#enquire" style="color:#D95F2B;margin-top:8px;">Book a session →</a>
   </div>
 
-  <!-- PAGE HERO -->
   <div class="page-hero">
     <div class="container">
       <span class="eyebrow eyebrow--light">Physio services</span>
-      <h1 class="page-hero__title">Let's get you<br>moving again.</h1>
-      <p class="page-hero__sub">Whether you're injured, training hard, or just want to run smarter — this is the work I do.</p>
+      <h1 class="page-hero__title">Let's figure out what's actually going on.</h1>
+      <p class="page-hero__sub">Assessment, load management, return to sport. For runners who want to understand their body, not just be told what to rest.</p>
     </div>
   </div>
 
-  <!-- SERVICES -->
   <section class="section section--dark">
     <div class="container">
       <div class="section__header">
-        <span class="eyebrow eyebrow--light">What I offer</span>
+        <span class="eyebrow eyebrow--light">How I work</span>
         <h2 class="section__title" style="color:var(--dust);">Three ways to work together.</h2>
-        <p class="section__sub">All grounded in the same thing — helping you understand your body well enough to push it further without breaking it.</p>
+        <p class="section__sub">All of them start with the same question: what's the actual mechanism here, and what needs to change?</p>
       </div>
       <div class="services-grid">
         <div class="service-card">
           <span class="service-card__icon">🦴</span>
           <h3 class="service-card__title">Initial assessment</h3>
-          <p class="service-card__text">A thorough look at what's going on, why it's happening, and a clear plan for what to do about it.</p>
+          <p class="service-card__text">A thorough look at what's happening and why. Movement screen, load history, and a plan that addresses the cause — not just the symptom.</p>
           <ul class="service-card__list">
             <li>60-minute session</li>
-            <li>Movement screening</li>
-            <li>Injury history review</li>
-            <li>Tailored rehab plan</li>
+            <li>Movement and biomechanics screen</li>
+            <li>Load and training history review</li>
+            <li>Clear diagnosis and rehab plan</li>
           </ul>
           <a href="#enquire" class="service-card__cta">Enquire →</a>
         </div>
         <div class="service-card">
           <span class="service-card__icon">🏃</span>
           <h3 class="service-card__title">Runner's MOT</h3>
-          <p class="service-card__text">For runners who aren't injured yet but want to stay that way. A biomechanics check before something goes wrong.</p>
+          <p class="service-card__text">For runners who aren't injured yet. A biomechanics and load assessment to find the gaps before they become problems — especially useful before ramping up for a race.</p>
           <ul class="service-card__list">
-            <li>Gait analysis</li>
-            <li>Load assessment</li>
-            <li>Strength gap identification</li>
-            <li>Prevention plan</li>
+            <li>Gait and stride analysis</li>
+            <li>Strength and mobility assessment</li>
+            <li>Training load review</li>
+            <li>Injury prevention plan</li>
           </ul>
           <a href="#enquire" class="service-card__cta">Enquire →</a>
         </div>
         <div class="service-card">
           <span class="service-card__icon">💻</span>
           <h3 class="service-card__title">Online consult</h3>
-          <p class="service-card__text">Can't get to me in person? Online sessions work better than you'd think for most running-related issues.</p>
+          <p class="service-card__text">Most running-related issues can be assessed effectively via video. Useful if you're not local or if you want a second opinion on something you're already managing.</p>
           <ul class="service-card__list">
-            <li>Video call assessment</li>
-            <li>Movement review via video</li>
-            <li>Digital exercise program</li>
-            <li>Follow-up support</li>
+            <li>Video assessment</li>
+            <li>Movement review from submitted footage</li>
+            <li>Written plan with exercise program</li>
+            <li>Follow-up messaging support</li>
           </ul>
           <a href="#enquire" class="service-card__cta">Enquire →</a>
         </div>
@@ -486,42 +494,39 @@ ul { list-style: none; }
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
   <section class="section section--mid">
     <div class="container">
       <div class="section__header">
-        <span class="eyebrow">Simple process</span>
-        <h2 class="section__title">How it works.</h2>
+        <span class="eyebrow">How it works</span>
+        <h2 class="section__title">Straightforward process.</h2>
       </div>
-      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:24px;">
-        <div style="text-align:center; padding: 24px;">
-          <div style="font-size:36px; font-weight:500; color:var(--fire); margin-bottom:12px;">01</div>
-          <h3 style="font-size:16px; font-weight:500; margin-bottom:8px;">Fill in the form</h3>
-          <p style="font-size:14px; color:#555; line-height:1.6;">Tell me a bit about what's going on — injury, goals, what you've tried already.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+        <div style="text-align:center;padding:24px;">
+          <div style="font-size:36px;font-weight:500;color:var(--fire);margin-bottom:12px;">01</div>
+          <h3 style="font-size:16px;font-weight:500;margin-bottom:8px;">Fill in the form</h3>
+          <p style="font-size:14px;color:#555;line-height:1.6;">Tell me what's going on — the injury, the history, what you've already tried, what you're training for.</p>
         </div>
-        <div style="text-align:center; padding: 24px;">
-          <div style="font-size:36px; font-weight:500; color:var(--fire); margin-bottom:12px;">02</div>
-          <h3 style="font-size:16px; font-weight:500; margin-bottom:8px;">I'll be in touch</h3>
-          <p style="font-size:14px; color:#555; line-height:1.6;">I'll reach out within 48 hours to confirm a time and answer any questions.</p>
+        <div style="text-align:center;padding:24px;">
+          <div style="font-size:36px;font-weight:500;color:var(--fire);margin-bottom:12px;">02</div>
+          <h3 style="font-size:16px;font-weight:500;margin-bottom:8px;">I'll be in touch within 48 hours</h3>
+          <p style="font-size:14px;color:#555;line-height:1.6;">We'll confirm a time and I'll let you know if there's anything useful to bring or prepare.</p>
         </div>
-        <div style="text-align:center; padding: 24px;">
-          <div style="font-size:36px; font-weight:500; color:var(--fire); margin-bottom:12px;">03</div>
-          <h3 style="font-size:16px; font-weight:500; margin-bottom:8px;">Let's get moving</h3>
-          <p style="font-size:14px; color:#555; line-height:1.6;">Your first session. Clear answers, a real plan, and a path forward that makes sense for your life.</p>
+        <div style="text-align:center;padding:24px;">
+          <div style="font-size:36px;font-weight:500;color:var(--fire);margin-bottom:12px;">03</div>
+          <h3 style="font-size:16px;font-weight:500;margin-bottom:8px;">Leave with a clear plan</h3>
+          <p style="font-size:14px;color:#555;line-height:1.6;">Not just a diagnosis. A specific, load-appropriate path forward that accounts for what you're actually trying to do.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ENQUIRY FORM -->
   <section class="section section--dark" id="enquire">
     <div class="container">
-      <div class="section__header" style="text-align:center; max-width:560px; margin:0 auto 40px;">
+      <div class="section__header" style="text-align:center;max-width:560px;margin:0 auto 40px;">
         <span class="eyebrow eyebrow--light">Get in touch</span>
         <h2 class="section__title" style="color:var(--dust);">Tell me what's going on.</h2>
-        <p class="section__sub" style="margin: 12px auto 0;">Fill this in and I'll come back to you within 48 hours. No commitment required — just a conversation.</p>
+        <p class="section__sub" style="margin:12px auto 0;">Fill this in and I'll come back to you within 48 hours. No commitment required.</p>
       </div>
-
       <div class="form-wrap">
         <form id="enquiryForm">
           <div class="form-row">
@@ -534,7 +539,6 @@ ul { list-style: none; }
               <input type="text" id="lastName" name="lastName" placeholder="Smith" required>
             </div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label for="email">Email</label>
@@ -545,7 +549,6 @@ ul { list-style: none; }
               <input type="tel" id="phone" name="phone" placeholder="04xx xxx xxx">
             </div>
           </div>
-
           <div class="form-group">
             <label for="service">What are you interested in?</label>
             <select id="service" name="service" required>
@@ -556,58 +559,57 @@ ul { list-style: none; }
               <option value="unsure">Not sure yet — just want to chat</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="issue">What's going on?</label>
-            <textarea id="issue" name="issue" placeholder="Tell me about the issue or injury — where it hurts, how long it's been happening, what you've tried..." required></textarea>
+            <textarea id="issue" name="issue" placeholder="The injury or issue, how long it's been happening, what you've tried so far..." required></textarea>
           </div>
-
           <div class="form-group">
-            <label for="goal">What's your goal?</label>
+            <label for="goal">What are you training for?</label>
             <select id="goal" name="goal">
-              <option value="" disabled selected>What are you training for / trying to achieve?</option>
-              <option value="race">Race or event</option>
+              <option value="" disabled selected>Select your goal</option>
+              <option value="race">A specific race or event</option>
               <option value="return">Return to running after injury</option>
-              <option value="prevention">Stay injury-free</option>
-              <option value="general">General fitness and movement</option>
+              <option value="prevention">Stay injury-free while training</option>
+              <option value="general">General movement and fitness</option>
               <option value="other">Something else</option>
             </select>
           </div>
-
           <div class="form-group">
-            <label for="format">Preferred format</label>
+            <label for="format">In-person or online?</label>
             <select id="format" name="format">
-              <option value="" disabled selected>In-person or online?</option>
+              <option value="" disabled selected>Select a format</option>
               <option value="inperson">In-person</option>
               <option value="online">Online</option>
               <option value="either">Either works</option>
             </select>
           </div>
-
           <div class="form-group">
-            <label for="extra">Anything else I should know?</label>
-            <textarea id="extra" name="extra" placeholder="Previous injuries, surgeries, other context that might help..."></textarea>
+            <label for="extra">Anything else useful to know?</label>
+            <textarea id="extra" name="extra" placeholder="Previous injuries, surgeries, other context..."></textarea>
           </div>
-
           <button type="submit" class="form-submit">Send enquiry</button>
         </form>
-
         <div class="form-success" id="formSuccess" style="color:var(--canopy);">
-          <p style="font-size:28px; margin-bottom:12px;">✓</p>
-          <p style="font-size:18px; font-weight:500; color:var(--dust); margin-bottom:8px;">Enquiry received.</p>
-          <p style="font-size:14px; color:var(--stone);">I'll be in touch within 48 hours. See you on the trails.</p>
+          <p style="font-size:28px;margin-bottom:12px;">✓</p>
+          <p style="font-size:18px;font-weight:500;color:var(--dust);margin-bottom:8px;">Got it.</p>
+          <p style="font-size:14px;color:var(--stone);">I'll be in touch within 48 hours.</p>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       <div class="footer__inner">
         <div>
-          <p class="footer__logo">ULTRA <span>NORMAL</span></p>
-          <p class="footer__tagline">For people who just keep going. Trail running · Physio · Life.</p>
+          <div class="footer__logo"><svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ultra Normal">
+  <path d="M6 5 L6 33 Q6 45 18 45 Q30 45 30 33 L30 5" stroke="#F5F2EC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <path d="M30 5 L30 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <path d="M30 5 L50 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <path d="M50 5 L50 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <text x="64" y="26" font-family="DM Sans,system-ui,sans-serif" font-size="15" font-weight="500" fill="#F5F2EC" letter-spacing="-0.01em">ULTRA</text>
+  <text x="64" y="44" font-family="DM Sans,system-ui,sans-serif" font-size="10" font-weight="400" fill="#D95F2B" letter-spacing="0.14em">NORMAL</text>
+</svg></div>
+          <p class="footer__tagline">Trail running · Physio · Life.<br>For people who just keep going.</p>
         </div>
         <div>
           <p class="footer__heading">Navigate</p>
@@ -622,17 +624,20 @@ ul { list-style: none; }
           <div class="footer__links">
             <a href="https://instagram.com/ultranormal" target="_blank">Instagram</a>
             <a href="https://youtube.com/@ultranormal" target="_blank">YouTube</a>
-            <a href="#enquire">Book a session</a>
+            <a href="work-with-me.html#enquire">Book a session</a>
           </div>
         </div>
       </div>
       <div class="footer__bottom">
-        <p class="footer__copy">© 2026 Ultra Normal. All rights reserved.</p>
+        <p class="footer__copy">© 2026 Ultra Normal.</p>
+        <div class="footer__social">
+          <a href="https://instagram.com/ultranormal" target="_blank">Instagram</a>
+          <a href="https://youtube.com/@ultranormal" target="_blank">YouTube</a>
+        </div>
       </div>
     </div>
   </footer>
-
-  <script>
+<script>
 // Ultra Normal — Main JS
 
 // ── Mobile nav ──
