@@ -6,11 +6,7 @@
   <title>Blog — Ultra Normal</title>
   <meta name="description" content="Weekly training updates, physio education, and the AI coaching experiment.">
   <style>
-/* Ultra Normal — Brand Stylesheet */
-
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap');
-
-/* ── Tokens ── */
 :root {
   --asphalt:    #1A1A18;
   --dust:       #F5F2EC;
@@ -20,312 +16,70 @@
   --stone-mid:  #E8E4DC;
   --dark-deep:  #111110;
   --canopy-dark:#2C3D2F;
-
   --font: 'DM Sans', system-ui, sans-serif;
   --radius: 10px;
   --radius-lg: 16px;
   --max: 1100px;
   --nav-h: 64px;
 }
-
-/* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body {
-  font-family: var(--font);
-  background: var(--dust);
-  color: var(--asphalt);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
+body { font-family: var(--font); background: var(--dust); color: var(--asphalt); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 ul { list-style: none; }
-
-/* ── Layout ── */
 .container { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 .section { padding: 88px 0; }
 .section--dark { background: var(--asphalt); color: var(--dust); }
-.section--canopy { background: var(--canopy-dark); color: var(--dust); }
-.section--mid { background: var(--stone-mid); }
-
-/* ── Nav ── */
-.nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: var(--nav-h);
-  background: var(--asphalt);
-  display: flex; align-items: center;
-  border-bottom: 0.5px solid rgba(255,255,255,0.08);
-}
-.nav__inner {
-  max-width: var(--max); margin: 0 auto; padding: 0 24px;
-  width: 100%;
-  display: flex; align-items: center; gap: 32px;
-}
-.nav__logo {
-  font-size: 15px; font-weight: 500; color: var(--dust);
-  letter-spacing: 0.04em; margin-right: 8px; flex-shrink: 0;
-}
-.nav__logo span { color: var(--fire); }
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--nav-h); background: var(--asphalt); display: flex; align-items: center; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
+.nav__inner { max-width: var(--max); margin: 0 auto; padding: 0 24px; width: 100%; display: flex; align-items: center; gap: 32px; }
+.nav__logo { font-size: 15px; font-weight: 500; color: var(--dust); letter-spacing: 0.04em; margin-right: 8px; flex-shrink: 0; background: none; padding: 0; display: flex; align-items: center; }
+.nav__logo svg { display: block; }
 .nav__links { display: flex; gap: 4px; align-items: center; }
-.nav__links a {
-  font-size: 13px; color: var(--stone); padding: 6px 12px;
-  border-radius: 20px; transition: color 0.15s;
-}
+.nav__links a { font-size: 13px; color: var(--stone); padding: 6px 12px; border-radius: 20px; transition: color 0.15s; }
 .nav__links a:hover { color: var(--dust); }
 .nav__links a.active { color: var(--dust); }
-.nav__cta {
-  margin-left: auto;
-  background: var(--fire); color: #fff;
-  font-size: 13px; font-weight: 500;
-  padding: 8px 18px; border-radius: 24px;
-  transition: opacity 0.15s; flex-shrink: 0;
-}
+.nav__cta { margin-left: auto; background: var(--fire); color: #fff; font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 24px; transition: opacity 0.15s; flex-shrink: 0; }
 .nav__cta:hover { opacity: 0.88; }
-.nav__burger {
-  display: none; margin-left: auto;
-  background: none; border: none; cursor: pointer;
-  flex-direction: column; gap: 5px; padding: 4px;
-}
-.nav__burger span {
-  display: block; width: 22px; height: 1.5px; background: var(--dust);
-  transition: 0.2s;
-}
-.nav__mobile {
-  display: none; position: fixed; top: var(--nav-h); left: 0; right: 0;
-  background: var(--asphalt); padding: 16px 24px 24px;
-  border-bottom: 0.5px solid rgba(255,255,255,0.08); z-index: 99;
-  flex-direction: column; gap: 4px;
-}
-.nav__mobile a {
-  font-size: 15px; color: var(--stone); padding: 10px 0;
-  border-bottom: 0.5px solid rgba(255,255,255,0.06);
-  display: block;
-}
+.nav__burger { display: none; margin-left: auto; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
+.nav__burger span { display: block; width: 22px; height: 1.5px; background: var(--dust); transition: 0.2s; }
+.nav__mobile { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: var(--asphalt); padding: 16px 24px 24px; border-bottom: 0.5px solid rgba(255,255,255,0.08); z-index: 99; flex-direction: column; gap: 4px; }
+.nav__mobile a { font-size: 15px; color: var(--stone); padding: 10px 0; border-bottom: 0.5px solid rgba(255,255,255,0.06); display: block; }
 .nav__mobile a:last-child { border-bottom: none; }
 .nav__mobile.open { display: flex; }
-
-/* ── Eyebrow ── */
-.eyebrow {
-  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--fire);
-  margin-bottom: 12px; display: block;
-}
+.eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fire); margin-bottom: 12px; display: block; }
 .eyebrow--light { color: var(--stone); }
-
-/* ── Hero ── */
-.hero {
-  min-height: 100vh;
-  background: var(--asphalt);
-  display: flex; align-items: center;
-  padding-top: var(--nav-h);
-  position: relative; overflow: hidden;
-}
-.hero__bg {
-  position: absolute; inset: 0; opacity: 0.04;
-  background-image: repeating-linear-gradient(
-    0deg, transparent, transparent 40px,
-    rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px
-  ),
-  repeating-linear-gradient(
-    90deg, transparent, transparent 40px,
-    rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px
-  );
-}
-.hero__accent {
-  position: absolute; bottom: -120px; right: -80px;
-  width: 520px; height: 520px; border-radius: 50%;
-  background: var(--fire); opacity: 0.07; filter: blur(80px);
-  pointer-events: none;
-}
-.hero__content { position: relative; max-width: 680px; }
-.hero__h1 {
-  font-size: clamp(40px, 7vw, 80px);
-  font-weight: 500; color: var(--dust);
-  line-height: 1.05; letter-spacing: -0.03em;
-  margin-bottom: 20px;
-}
-.hero__h1 em { color: var(--fire); font-style: normal; }
-.hero__sub {
-  font-size: clamp(15px, 2vw, 18px);
-  color: var(--stone); line-height: 1.65;
-  max-width: 520px; margin-bottom: 32px;
-  font-weight: 300;
-}
-.hero__btns { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn {
-  display: inline-block; font-size: 14px; font-weight: 500;
-  padding: 12px 24px; border-radius: 28px; transition: opacity 0.15s;
-  cursor: pointer; border: none;
-}
+.btn { display: inline-block; font-size: 14px; font-weight: 500; padding: 12px 24px; border-radius: 28px; transition: opacity 0.15s; cursor: pointer; border: none; }
 .btn:hover { opacity: 0.85; }
 .btn--primary { background: var(--fire); color: #fff; }
-.btn--outline { background: transparent; color: var(--dust); border: 0.5px solid var(--stone); }
-.hero__scroll {
-  position: absolute; bottom: 32px; left: 50%;
-  transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-}
-.hero__scroll span { font-size: 10px; letter-spacing: 0.1em; color: var(--stone); }
-.hero__scroll-line {
-  width: 1px; height: 40px; background: linear-gradient(to bottom, var(--stone), transparent);
-  animation: scrollpulse 2s ease-in-out infinite;
-}
-@keyframes scrollpulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
-
-/* ── Section headers ── */
-.section__header { margin-bottom: 48px; }
-.section__title {
-  font-size: clamp(28px, 4vw, 44px); font-weight: 500;
-  letter-spacing: -0.02em; line-height: 1.15;
-}
-.section__sub {
-  font-size: 16px; color: var(--stone); margin-top: 12px;
-  max-width: 520px; line-height: 1.6; font-weight: 300;
-}
-.section--dark .section__sub { color: var(--stone); }
-
-/* ── Pillars ── */
-.pillars { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-.pillar {
-  border-radius: var(--radius-lg); padding: 28px;
-  border: 0.5px solid rgba(255,255,255,0.08);
-}
-.pillar--fire { background: var(--fire); }
-.pillar--canopy { background: var(--canopy); }
-.pillar--outline { border-color: var(--stone); }
-.pillar__icon { font-size: 24px; margin-bottom: 16px; display: block; }
-.pillar__title { font-size: 17px; font-weight: 500; color: var(--dust); margin-bottom: 8px; }
-.pillar--outline .pillar__title { color: var(--dust); }
-.pillar__text { font-size: 14px; color: rgba(245,242,236,0.75); line-height: 1.6; font-weight: 300; }
-
-/* ── Story ── */
-.story { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
-.story__visual {
-  aspect-ratio: 4/5; background: var(--canopy-dark);
-  border-radius: var(--radius-lg); overflow: hidden;
-  position: relative; display: flex; align-items: center; justify-content: center;
-}
-.story__visual-inner { text-align: center; }
-.story__visual svg { opacity: 0.6; }
-.story__visual-label {
-  font-size: 11px; letter-spacing: 0.1em; color: var(--stone);
-  text-transform: uppercase; margin-top: 12px;
-}
-.story__text { }
-.story__body { font-size: 16px; line-height: 1.75; color: var(--stone); font-weight: 300; }
-.story__body p + p { margin-top: 16px; }
-.story__stat-row { display: flex; gap: 32px; margin: 32px 0; }
-.story__stat-num { font-size: 36px; font-weight: 500; color: var(--dust); letter-spacing: -0.02em; }
-.story__stat-label { font-size: 12px; color: var(--stone); margin-top: 2px; }
-
-/* ── Blog ── */
+.section__title { font-size: clamp(28px, 4vw, 44px); font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
+.section__sub { font-size: 16px; color: var(--stone); margin-top: 12px; max-width: 520px; line-height: 1.6; font-weight: 300; }
+.page-hero { background: var(--asphalt); padding: 120px 0 80px; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+.page-hero__title { font-size: clamp(32px, 5vw, 60px); font-weight: 500; color: var(--dust); letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }
+.page-hero__sub { font-size: 17px; color: var(--stone); font-weight: 300; line-height: 1.6; max-width: 520px; }
+.blog-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; }
+.filter-btn { font-size: 12px; font-weight: 500; padding: 7px 16px; border-radius: 20px; border: 0.5px solid var(--stone); background: transparent; color: var(--asphalt); cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.filter-btn.active, .filter-btn:hover { background: var(--fire); color: #fff; border-color: var(--fire); }
+/* Substack embed wrapper */
+.substack-featured { margin-bottom: 48px; border-radius: var(--radius-lg); overflow: hidden; border: 0.5px solid rgba(26,26,24,0.15); background: #fff; }
+.substack-featured__label { padding: 16px 24px 0; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fire); }
 .blog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-.blog-card {
-  background: var(--asphalt); border-radius: var(--radius-lg);
-  overflow: hidden; border: 0.5px solid rgba(255,255,255,0.06);
-  transition: transform 0.2s;
-}
+.blog-card { background: var(--asphalt); border-radius: var(--radius-lg); overflow: hidden; border: 0.5px solid rgba(255,255,255,0.06); transition: transform 0.2s; }
 .blog-card:hover { transform: translateY(-3px); }
-.blog-card__thumb {
-  aspect-ratio: 16/9;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px;
-}
+.blog-card__thumb { aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-size: 32px; }
 .blog-card__body { padding: 20px; }
-.blog-card__tag {
-  font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--fire); margin-bottom: 8px; display: block;
-}
+.blog-card__tag { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fire); margin-bottom: 8px; display: block; }
 .blog-card__title { font-size: 15px; font-weight: 500; color: var(--dust); line-height: 1.4; margin-bottom: 8px; }
 .blog-card__excerpt { font-size: 13px; color: var(--stone); line-height: 1.55; font-weight: 300; }
-
-/* ── Services ── */
-.services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-.service-card {
-  background: rgba(255,255,255,0.04); border-radius: var(--radius-lg);
-  padding: 28px; border: 0.5px solid rgba(255,255,255,0.08);
-}
-.service-card__icon { font-size: 28px; margin-bottom: 16px; display: block; }
-.service-card__title { font-size: 17px; font-weight: 500; color: var(--dust); margin-bottom: 8px; }
-.service-card__text { font-size: 14px; color: var(--stone); line-height: 1.6; font-weight: 300; margin-bottom: 20px; }
-.service-card__list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
-.service-card__list li { font-size: 13px; color: var(--stone); padding-left: 14px; position: relative; }
-.service-card__list li::before { content:'·'; position:absolute; left:0; color: var(--fire); }
-.service-card__cta {
-  display: inline-block; font-size: 13px; font-weight: 500;
-  color: var(--fire); border: 0.5px solid var(--fire);
-  padding: 8px 16px; border-radius: 20px; transition: all 0.15s;
-}
-.service-card__cta:hover { background: var(--fire); color: #fff; }
-
-/* ── Form ── */
-.form-wrap {
-  max-width: 640px; margin: 0 auto;
-  background: var(--asphalt); border-radius: var(--radius-lg);
-  padding: 40px; border: 0.5px solid rgba(255,255,255,0.08);
-}
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.form-group label { font-size: 12px; font-weight: 500; color: var(--stone); letter-spacing: 0.04em; }
-.form-group input,
-.form-group select,
-.form-group textarea {
-  background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.12);
-  border-radius: var(--radius); padding: 12px 14px;
-  font-size: 14px; color: var(--dust); font-family: var(--font);
-  outline: none; transition: border-color 0.15s;
-  -webkit-appearance: none;
-}
-.form-group select option { background: var(--asphalt); }
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus { border-color: var(--fire); }
-.form-group textarea { resize: vertical; min-height: 100px; }
-.form-group input::placeholder,
-.form-group textarea::placeholder { color: rgba(200,196,186,0.4); }
-.form-submit {
-  width: 100%; background: var(--fire); color: #fff;
-  font-size: 15px; font-weight: 500; padding: 14px;
-  border-radius: 28px; border: none; cursor: pointer;
-  font-family: var(--font); transition: opacity 0.15s; margin-top: 8px;
-}
-.form-submit:hover { opacity: 0.88; }
-.form-success {
-  display: none; text-align: center; padding: 32px;
-  color: var(--canopy); font-size: 16px; font-weight: 500;
-}
-
-/* ── Email capture ── */
 .email-capture { max-width: 480px; margin: 0 auto; text-align: center; }
 .email-capture__form { display: flex; gap: 8px; margin-top: 20px; }
-.email-capture__input {
-  flex: 1; background: rgba(255,255,255,0.07);
-  border: 0.5px solid rgba(255,255,255,0.15); border-radius: 28px;
-  padding: 12px 18px; font-size: 14px; color: var(--dust);
-  font-family: var(--font); outline: none;
-}
+.email-capture__input { flex: 1; background: rgba(255,255,255,0.07); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 28px; padding: 12px 18px; font-size: 14px; color: var(--dust); font-family: var(--font); outline: none; }
 .email-capture__input::placeholder { color: var(--stone); }
-.email-capture__btn {
-  background: var(--fire); color: #fff; border: none;
-  padding: 12px 20px; border-radius: 28px;
-  font-size: 14px; font-weight: 500; cursor: pointer;
-  font-family: var(--font); white-space: nowrap;
-  transition: opacity 0.15s;
-}
+.email-capture__btn { background: var(--fire); color: #fff; border: none; padding: 12px 20px; border-radius: 28px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font); white-space: nowrap; transition: opacity 0.15s; }
 .email-capture__btn:hover { opacity: 0.88; }
-
-/* ── Footer ── */
-.footer {
-  background: var(--dark-deep); color: var(--stone);
-  padding: 48px 0 32px;
-}
-.footer__inner {
-  display: grid; grid-template-columns: 1.5fr 1fr 1fr;
-  gap: 48px; margin-bottom: 48px;
-}
+.footer { background: var(--dark-deep); color: var(--stone); padding: 48px 0 32px; }
+.footer__inner { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
 .footer__logo { font-size: 16px; font-weight: 500; color: var(--dust); margin-bottom: 12px; }
-.footer__logo span { color: var(--fire); }
 .footer__tagline { font-size: 13px; color: var(--stone); line-height: 1.6; max-width: 240px; font-weight: 300; }
 .footer__heading { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); margin-bottom: 14px; }
 .footer__links { display: flex; flex-direction: column; gap: 8px; }
@@ -336,92 +90,32 @@ ul { list-style: none; }
 .footer__social { display: flex; gap: 16px; }
 .footer__social a { font-size: 12px; color: var(--stone); transition: color 0.15s; }
 .footer__social a:hover { color: var(--dust); }
-
-/* ── Page hero (inner pages) ── */
-.page-hero {
-  background: var(--asphalt); padding: 120px 0 80px;
-  border-bottom: 0.5px solid rgba(255,255,255,0.06);
-}
-.page-hero__title {
-  font-size: clamp(32px, 5vw, 60px); font-weight: 500;
-  color: var(--dust); letter-spacing: -0.02em; line-height: 1.1;
-  margin-bottom: 12px;
-}
-.page-hero__sub { font-size: 17px; color: var(--stone); font-weight: 300; line-height: 1.6; max-width: 520px; }
-
-/* ── About ── */
-.about-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: start; }
-.about-photo {
-  aspect-ratio: 3/4; background: var(--canopy-dark);
-  border-radius: var(--radius-lg); position: sticky; top: 88px;
-  display: flex; align-items: center; justify-content: center;
-}
-.about-body p { font-size: 16px; line-height: 1.8; color: var(--asphalt); margin-bottom: 20px; font-weight: 300; }
-.about-body h3 { font-size: 20px; font-weight: 500; margin: 36px 0 12px; }
-.cred-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-.cred-list li { font-size: 14px; color: var(--asphalt); padding-left: 16px; position: relative; }
-.cred-list li::before { content:'—'; position:absolute; left:0; color: var(--fire); }
-
-/* ── Blog page ── */
-.blog-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; }
-.filter-btn {
-  font-size: 12px; font-weight: 500; padding: 7px 16px;
-  border-radius: 20px; border: 0.5px solid var(--stone);
-  background: transparent; color: var(--asphalt); cursor: pointer;
-  font-family: var(--font); transition: all 0.15s;
-}
-.filter-btn.active,
-.filter-btn:hover { background: var(--fire); color: #fff; border-color: var(--fire); }
-.blog-featured {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
-  margin-bottom: 48px; background: var(--asphalt);
-  border-radius: var(--radius-lg); overflow: hidden;
-  border: 0.5px solid rgba(255,255,255,0.06);
-}
-.blog-featured__thumb {
-  aspect-ratio: 1; background: var(--canopy-dark);
-  display: flex; align-items: center; justify-content: center; font-size: 48px;
-}
-.blog-featured__body { padding: 40px 36px 40px 0; display: flex; flex-direction: column; justify-content: center; }
-.blog-featured__tag { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fire); margin-bottom: 10px; display: block; }
-.blog-featured__title { font-size: 24px; font-weight: 500; color: var(--dust); line-height: 1.3; margin-bottom: 12px; }
-.blog-featured__excerpt { font-size: 14px; color: var(--stone); line-height: 1.6; font-weight: 300; }
-
-/* ── Responsive ── */
 @media (max-width: 768px) {
   .nav__links, .nav__cta { display: none; }
   .nav__burger { display: flex; }
-  .pillars, .blog-grid, .services-grid { grid-template-columns: 1fr; }
-  .story, .about-grid, .blog-featured, .footer__inner { grid-template-columns: 1fr; }
-  .about-photo { position: static; aspect-ratio: 3/2; }
-  .story__stat-row { gap: 24px; }
-  .form-row { grid-template-columns: 1fr; }
+  .blog-grid { grid-template-columns: 1fr; }
+  .footer__inner { grid-template-columns: 1fr; gap: 32px; }
   .section { padding: 64px 0; }
-  .blog-featured__body { padding: 24px; }
-  .footer__inner { gap: 32px; }
 }
-
-.nav__logo { background: none; padding: 0; display: flex; align-items: center; }
-.nav__logo svg { display: block; }
-.footer__logo { margin-bottom: 12px; }
-
   </style>
 </head>
 <body>
   <nav class="nav">
     <div class="nav__inner">
-      <a href="index.html" class="nav__logo"><svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ultra Normal">
-  <path d="M6 5 L6 33 Q6 45 18 45 Q30 45 30 33 L30 5" stroke="#F5F2EC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <path d="M30 5 L30 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <path d="M30 5 L50 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <path d="M50 5 L50 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <text x="64" y="26" font-family="DM Sans,system-ui,sans-serif" font-size="15" font-weight="500" fill="#F5F2EC" letter-spacing="-0.01em">ULTRA</text>
-  <text x="64" y="44" font-family="DM Sans,system-ui,sans-serif" font-size="10" font-weight="400" fill="#4A7C59" letter-spacing="0.14em">NORMAL</text>
-</svg></a>
+      <a href="index.html" class="nav__logo">
+        <svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ultra Normal">
+          <path d="M6 5 L6 33 Q6 45 18 45 Q30 45 30 33 L30 5" stroke="#F5F2EC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <path d="M30 5 L30 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <path d="M30 5 L50 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <path d="M50 5 L50 45" stroke="#4A7C59" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <text x="64" y="26" font-family="DM Sans,system-ui,sans-serif" font-size="15" font-weight="500" fill="#F5F2EC" letter-spacing="-0.01em">ULTRA</text>
+          <text x="64" y="44" font-family="DM Sans,system-ui,sans-serif" font-size="10" font-weight="400" fill="#4A7C59" letter-spacing="0.14em">NORMAL</text>
+        </svg>
+      </a>
       <div class="nav__links">
         <a href="index.html">Home</a>
         <a href="about.html">About</a>
-        <a href="blog.html">Blog</a>
+        <a href="blog.html" class="active">Blog</a>
         <a href="work-with-me.html">Work with me</a>
       </div>
       <a href="work-with-me.html#enquire" class="nav__cta">Book a session</a>
@@ -448,74 +142,15 @@ ul { list-style: none; }
 
   <section class="section">
     <div class="container">
-      <div class="blog-filters">
-        <button class="filter-btn active" data-filter="all">All posts</button>
-        <button class="filter-btn" data-filter="comeback">The comeback</button>
-        <button class="filter-btn" data-filter="physio">Physio brain</button>
-        <button class="filter-btn" data-filter="ai">AI experiment</button>
-        <button class="filter-btn" data-filter="gear">Gear</button>
+
+<!-- Latest Substack post -->
+      <div class="substack-featured">
+        <p class="substack-featured__label">Latest post</p>
+        <div class="substack-post-embed"><p lang="en">The Injury I Saw Coming and Ignored Anyway by Leon Green</p><p>How I Broke My Knee and What It Taught Me About Running Injuries</p><a data-post-link href="https://ultranormalphysio.substack.com/p/the-injury-i-saw-coming-and-ignored">Read on Substack</a></div><script async src="https://substack.com/embedjs/embed.js" charset="utf-8"></script>
       </div>
 
-      <div class="blog-featured">
-        <div class="blog-featured__thumb">🌲</div>
-        <div class="blog-featured__body">
-          <span class="blog-featured__tag">The comeback · Week 1</span>
-          <h2 class="blog-featured__title">Why I chose an AI coach — and what that says about coaching bias</h2>
-          <p class="blog-featured__excerpt">There's a well-documented problem in self-coaching: you tend to prescribe what you enjoy rather than what you need. Handing the programming to an algorithm removes that variable. Here's what I've learned about the tradeoff so far.</p>
-          <a href="#" class="btn btn--primary" style="margin-top:20px;display:inline-block;">Read post</a>
-        </div>
-      </div>
 
-      <div class="blog-grid">
-        <div class="blog-card" data-category="physio">
-          <div class="blog-card__thumb" style="background:#2C3D2F;">🦴</div>
-          <div class="blog-card__body">
-            <span class="blog-card__tag">Physio brain · Week 2</span>
-            <h3 class="blog-card__title">Load management: the mechanism, not the metaphor</h3>
-            <p class="blog-card__excerpt">What's actually happening in the tissue when load accumulates faster than adaptation. Why the 10% rule is a proxy, not a principle.</p>
-          </div>
-        </div>
-        <div class="blog-card" data-category="comeback">
-          <div class="blog-card__thumb" style="background:#3a2218;">🏃</div>
-          <div class="blog-card__body">
-            <span class="blog-card__tag">The comeback · Week 3</span>
-            <h3 class="blog-card__title">Three weeks in — what the data shows vs what I feel</h3>
-            <p class="blog-card__excerpt">HRV is trending up. Left hip still stiff on morning runs. One session the AI got wrong and why I overrode it.</p>
-          </div>
-        </div>
-        <div class="blog-card" data-category="physio">
-          <div class="blog-card__thumb" style="background:#1a2a1a;">💪</div>
-          <div class="blog-card__body">
-            <span class="blog-card__tag">Physio brain · Week 4</span>
-            <h3 class="blog-card__title">Building aerobic base without accumulating damage</h3>
-            <p class="blog-card__excerpt">The physiology of easy running. Why zone 2 works, what it actually does at a cellular level, and how to know when you're in it.</p>
-          </div>
-        </div>
-        <div class="blog-card" data-category="physio">
-          <div class="blog-card__thumb" style="background:#1a1a30;">🍑</div>
-          <div class="blog-card__body">
-            <span class="blog-card__tag">Physio brain · Week 5</span>
-            <h3 class="blog-card__title">Glute function in trail running — what the research actually says</h3>
-            <p class="blog-card__excerpt">Not "activate your glutes." The specific mechanical role of gluteus medius on technical terrain and how weakness shows up in your stride before it shows up as pain.</p>
-          </div>
-        </div>
-        <div class="blog-card" data-category="ai">
-          <div class="blog-card__thumb" style="background:#2a1a1a;">🤖</div>
-          <div class="blog-card__body">
-            <span class="blog-card__tag">AI experiment · Week 5</span>
-            <h3 class="blog-card__title">Adding strength work the AI didn't prescribe</h3>
-            <p class="blog-card__excerpt">The plan had no strength component in weeks 3–5. Here's the clinical reasoning for adding it anyway, and how I structured the load so it didn't interfere with the running adaptation.</p>
-          </div>
-        </div>
-        <div class="blog-card" data-category="comeback">
-          <div class="blog-card__thumb" style="background:#2a2a1a;">📊</div>
-          <div class="blog-card__body">
-            <span class="blog-card__tag">The comeback · Week 6</span>
-            <h3 class="blog-card__title">Six weeks — the honest numbers</h3>
-            <p class="blog-card__excerpt">Weekly mileage, HRV trend, strength session data, and one metric that surprised me. What the numbers say and where I'm reading them differently.</p>
-          </div>
-        </div>
-      </div>
+
     </div>
   </section>
 
@@ -532,18 +167,21 @@ ul { list-style: none; }
       </div>
     </div>
   </section>
+
   <footer class="footer">
     <div class="container">
       <div class="footer__inner">
         <div>
-          <div class="footer__logo"><svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ultra Normal">
-  <path d="M6 5 L6 33 Q6 45 18 45 Q30 45 30 33 L30 5" stroke="#F5F2EC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <path d="M30 5 L30 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <path d="M30 5 L50 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <path d="M50 5 L50 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <text x="64" y="26" font-family="DM Sans,system-ui,sans-serif" font-size="15" font-weight="500" fill="#F5F2EC" letter-spacing="-0.01em">ULTRA</text>
-  <text x="64" y="44" font-family="DM Sans,system-ui,sans-serif" font-size="10" font-weight="400" fill="#D95F2B" letter-spacing="0.14em">NORMAL</text>
-</svg></div>
+          <div class="footer__logo">
+            <svg width="160" height="52" viewBox="0 0 160 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ultra Normal">
+              <path d="M6 5 L6 33 Q6 45 18 45 Q30 45 30 33 L30 5" stroke="#F5F2EC" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <path d="M30 5 L30 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <path d="M30 5 L50 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <path d="M50 5 L50 45" stroke="#D95F2B" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <text x="64" y="26" font-family="DM Sans,system-ui,sans-serif" font-size="15" font-weight="500" fill="#F5F2EC" letter-spacing="-0.01em">ULTRA</text>
+              <text x="64" y="44" font-family="DM Sans,system-ui,sans-serif" font-size="10" font-weight="400" fill="#D95F2B" letter-spacing="0.14em">NORMAL</text>
+            </svg>
+          </div>
           <p class="footer__tagline">Trail running · Physio · Life.<br>For people who just keep going.</p>
         </div>
         <div>
@@ -572,86 +210,60 @@ ul { list-style: none; }
       </div>
     </div>
   </footer>
-<script>
-// Ultra Normal — Main JS
 
-// ── Mobile nav ──
-const burger = document.getElementById('burger');
-const mobileNav = document.getElementById('mobileNav');
-if (burger && mobileNav) {
-  burger.addEventListener('click', () => {
-    mobileNav.classList.toggle('open');
+  <script>
+  const burger = document.getElementById('burger');
+  const mobileNav = document.getElementById('mobileNav');
+  if (burger && mobileNav) {
+    burger.addEventListener('click', () => mobileNav.classList.toggle('open'));
+    mobileNav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => mobileNav.classList.remove('open'));
+    });
+  }
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.nav__links a, .nav__mobile a').forEach(a => {
+    if (a.getAttribute('href') === currentPage) a.classList.add('active');
   });
-  mobileNav.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => mobileNav.classList.remove('open'));
-  });
-}
-
-// ── Active nav link ──
-const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-document.querySelectorAll('.nav__links a, .nav__mobile a').forEach(a => {
-  if (a.getAttribute('href') === currentPage) a.classList.add('active');
-});
-
-// ── Physio enquiry form ──
-const enquiryForm = document.getElementById('enquiryForm');
-if (enquiryForm) {
-  enquiryForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    // Replace this with your Tally or Formspree endpoint
-    const formSuccess = document.getElementById('formSuccess');
-    enquiryForm.style.display = 'none';
-    if (formSuccess) formSuccess.style.display = 'block';
-  });
-}
-
-// ── Email capture ──
-document.querySelectorAll('.email-capture__form').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = this.querySelector('.email-capture__btn');
-    const input = this.querySelector('.email-capture__input');
-    if (input.value) {
-      btn.textContent = 'You\'re in ✓';
-      btn.style.background = '#4A7C59';
-      input.value = '';
-      input.placeholder = 'See you on the trails.';
-      input.disabled = true;
-    }
-  });
-});
-
-// ── Blog filters ──
-const filterBtns = document.querySelectorAll('.filter-btn');
-const blogCards = document.querySelectorAll('.blog-card[data-category]');
-filterBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    filterBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const cat = btn.dataset.filter;
-    blogCards.forEach(card => {
-      card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
+  document.querySelectorAll('.email-capture__form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('.email-capture__btn');
+      const input = this.querySelector('.email-capture__input');
+      if (input.value) {
+        btn.textContent = "You're in \u2713";
+        btn.style.background = '#4A7C59';
+        input.value = '';
+        input.placeholder = 'See you on the trails.';
+        input.disabled = true;
+      }
     });
   });
-});
-
-// ── Scroll reveal ──
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
-    }
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const blogCards = document.querySelectorAll('.blog-card[data-category]');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.filter;
+      blogCards.forEach(card => {
+        card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
+      });
+    });
   });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.pillar, .blog-card, .service-card').forEach(el => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(16px)';
-  el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-  observer.observe(el);
-});
-
-</script>
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.blog-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    observer.observe(el);
+  });
+  </script>
 </body>
 </html>
