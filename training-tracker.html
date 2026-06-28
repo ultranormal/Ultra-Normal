@@ -8,327 +8,179 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  background: #1A1A18; color: #F5F2EC;
-  font-size: 14px; line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
+body { font-family: 'DM Sans', system-ui, sans-serif; background: #1A1A18; color: #F5F2EC; font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 :root {
-  --asphalt: #1A1A18; --dust: #F5F2EC; --fire: #D95F2B;
-  --canopy: #4A7C59; --stone: #C8C4BA; --subtle: #6B6862;
-  --border: #2E2E2C; --dark: #111110;
-  --easy: #4A7C59; --mod: #8A6C20; --hard: #C43020;
-  --long: #1A5A6E; --rest: #555550; --strength: #5A3A7A;
+  --asphalt:#1A1A18; --dust:#F5F2EC; --fire:#D95F2B; --canopy:#4A7C59;
+  --stone:#C8C4BA; --subtle:#6B6862; --border:#2E2E2C; --dark:#111110;
+  --easy:#4A7C59; --mod:#8A6C20; --hard:#C43020; --long:#1A5A6E;
+  --rest:#555550; --strength:#5A3A7A; --knee-ok:#4A7C59; --knee-warn:#D4A020; --knee-bad:#C43020;
 }
+.nav { position:sticky;top:0;z-index:100;background:var(--dark);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px; }
+.nav-logo { font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase; }
+.nav-logo span { color:var(--fire); }
+.nav-right { font-size:12px;color:var(--stone);display:flex;align-items:center;gap:12px; }
+.sync-dot { width:7px;height:7px;border-radius:50%;background:var(--subtle);display:inline-block; }
+.sync-dot.syncing { background:#D4A020;animation:pulse 1s infinite; }
+.sync-dot.synced { background:var(--canopy); }
+.sync-dot.error { background:var(--hard); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+.progress-bar-wrap { background:var(--dark);border-bottom:1px solid var(--border);padding:10px 20px; }
+.progress-stats { display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:12px; }
+.progress-stats-right { display:flex;gap:14px; }
+.progress-track { height:3px;background:var(--border);border-radius:2px; }
+.progress-fill { height:100%;border-radius:2px;background:var(--fire);transition:width 0.4s; }
+.tabs { display:flex;background:var(--asphalt);border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:99;overflow-x:auto; }
+.tab { padding:12px 16px;font-size:13px;color:var(--subtle);border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s; }
+.tab.active { color:var(--dust);border-bottom-color:var(--fire); }
+.tab:hover:not(.active) { color:var(--dust); }
+.panel { display:none; }
+.panel.active { display:block; }
+.content { max-width:900px;margin:0 auto;padding:20px 16px; }
+.phase { border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px; }
+.phase-header { padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer; }
+.phase-1 .phase-header { background:#1E1E1C; }
+.phase-2 .phase-header { background:#1E1C18; }
+.phase-3 .phase-header { background:#1E1818; }
+.phase-title-wrap { display:flex;align-items:center;gap:10px; }
+.phase-num { font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle); }
+.phase-title { font-size:15px;font-weight:500; }
+.phase-meta { display:flex;align-items:center;gap:12px; }
+.phase-weeks { font-size:12px;color:var(--subtle); }
+.toggle { font-size:12px;color:var(--subtle);transition:transform .2s;display:inline-block; }
+.toggle.open { transform:rotate(180deg); }
+.phase-body { display:none; }
+.phase-body.open { display:block; }
+.week-header { padding:9px 18px;background:#161614;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center; }
+.week-title { font-size:13px;font-weight:500; }
+.week-sub { font-size:11px;color:var(--subtle);margin-left:8px; }
+.week-load { font-size:11px;color:var(--stone); }
+.session-row { border-bottom:1px solid var(--border);border-left:3px solid transparent;transition:background 0.2s,border-color 0.2s; }
+.session-row.status-done { background:#1A221A;border-left-color:var(--canopy); }
+.session-row.status-skipped { background:#221A1A;border-left-color:var(--hard); }
+.session-row.status-modified { background:#1A1E28;border-left-color:#3A5A8A; }
+.session-main { display:grid;grid-template-columns:36px 12px 1fr auto;gap:10px;align-items:start;padding:11px 16px;cursor:pointer; }
+.session-main.no-expand { cursor:default; }
+.day-name { font-size:10px;font-weight:600;letter-spacing:0.1em;color:var(--subtle);text-transform:uppercase;padding-top:3px; }
+.session-dot { width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0; }
+.session-text { font-size:13px;line-height:1.5; }
+.session-text.skipped { color:var(--subtle);text-decoration:line-through; }
+.session-actions { display:flex;gap:5px;align-items:center; }
+.btn-status { width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--subtle);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-family:inherit; }
+.btn-status.done-active { background:var(--canopy);border-color:var(--canopy);color:#fff; }
+.btn-status.skip-active { background:var(--hard);border-color:var(--hard);color:#fff; }
+.expand-arrow { font-size:12px;color:var(--subtle);transition:transform 0.2s; }
+.expand-arrow.open { transform:rotate(180deg); }
+.tag { display:inline-block;font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;padding:1px 7px;border-radius:3px;margin-left:6px;vertical-align:middle; }
+.tag-heat { color:var(--fire);background:#2A1A10;border:1px solid #4A2A18; }
+.tag-str  { color:#9A7ACA;background:#1E1828;border:1px solid #3A2A5A; }
+.tag-mod  { color:#5A8ABB;background:#1A2030;border:1px solid #2A3A5A; }
+.tag-rpe  { color:var(--stone);background:var(--dark);border:1px solid var(--border); }
+.expand-panel { padding:0 16px 14px 58px;display:flex;flex-direction:column;gap:12px; }
+.field-label { font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:5px; }
+.rpe-grid { display:flex;gap:4px;flex-wrap:wrap; }
+.rpe-btn { width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:var(--dark);color:var(--stone);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit; }
+.rpe-btn.active { background:var(--fire);border-color:var(--fire);color:#fff; }
+.rpe-label { font-size:11px;color:var(--subtle);align-self:center;margin-left:6px; }
+.duration-row { display:flex;gap:16px;align-items:flex-end; }
+.duration-input { width:72px;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--dark);color:var(--dust);font-size:13px;font-family:inherit;outline:none; }
+.duration-planned { font-size:12px;color:var(--subtle);padding-bottom:8px; }
+.mod-check { display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--stone); }
+.mod-check input { accent-color:var(--fire);width:14px;height:14px; }
+.mod-textarea { width:100%;padding:8px 10px;border-radius:6px;margin-top:6px;border:1px solid var(--border);background:var(--dark);color:var(--dust);font-size:13px;font-family:inherit;resize:vertical;line-height:1.5;outline:none; }
+.load-preview { background:var(--dark);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--stone);display:flex;gap:16px; }
+.load-preview strong { color:var(--dust); }
+.dark-card { background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px; }
+.dark-card h3 { font-size:14px;font-weight:500;margin-bottom:6px; }
+.dark-card p { font-size:13px;color:var(--stone);line-height:1.7; }
+canvas { width:100%;height:auto;border-radius:8px;display:block; }
+.legend-row { display:flex;gap:16px;flex-wrap:wrap;margin-top:10px; }
+.legend-item { display:flex;align-items:center;gap:6px;font-size:11px;color:var(--stone); }
+.legend-dot { width:8px;height:8px;border-radius:50%; }
+.week-table { border:1px solid var(--border);border-radius:10px;overflow:hidden; }
+.wt-header { display:grid;grid-template-columns:60px 1fr 70px 60px 70px 80px;padding:10px 16px;background:#161614;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);border-bottom:1px solid var(--border); }
+.wt-row { display:grid;grid-template-columns:60px 1fr 70px 60px 70px 80px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;align-items:center; }
+.wt-row:last-child { border-bottom:none; }
+.load-bar-wrap { display:flex;align-items:center;gap:8px; }
+.load-bar { height:4px;background:var(--fire);border-radius:2px;min-width:2px; }
+.log-row { display:grid;grid-template-columns:56px 64px 1fr auto;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);align-items:start; }
+.log-row:last-child { border-bottom:none; }
+.heat-bar { background:#1E1410;border-bottom:1px solid #3A2018;padding:8px 18px;font-size:12px;color:#CC8060; }
+.info-bar { background:#161614;border-bottom:1px solid var(--border);padding:8px 18px;font-size:12px;color:var(--subtle); }
 
-/* ── NAV ── */
-.nav {
-  position: sticky; top: 0; z-index: 100;
-  background: var(--dark); border-bottom: 1px solid var(--border);
-  height: 52px; display: flex; align-items: center;
-  justify-content: space-between; padding: 0 20px;
-}
-.nav-logo { font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
-.nav-logo span { color: var(--fire); }
-.nav-right { font-size: 12px; color: var(--stone); display: flex; align-items: center; gap: 12px; }
-.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--subtle); display: inline-block; }
-.sync-dot.syncing { background: #D4A020; animation: pulse 1s infinite; }
-.sync-dot.synced { background: var(--canopy); }
-.sync-dot.error { background: var(--hard); }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+/* ── KNEE TRACKER ── */
+.knee-day-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px; }
+.knee-day-card { background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:10px 8px;text-align:center; }
+.knee-day-label { font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--subtle);margin-bottom:6px; }
+.knee-day-date { font-size:11px;color:var(--stone);margin-bottom:8px; }
+.knee-btns { display:flex;flex-direction:column;gap:3px; }
+.knee-btn { padding:4px 2px;border-radius:4px;border:1px solid var(--border);background:var(--asphalt);color:var(--stone);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s; }
+.knee-btn.active-ok { background:var(--canopy);border-color:var(--canopy);color:#fff; }
+.knee-btn.active-warn { background:#D4A020;border-color:#D4A020;color:#fff; }
+.knee-btn.active-bad { background:var(--hard);border-color:var(--hard);color:#fff; }
+.knee-score-display { font-size:22px;font-weight:300;margin:4px 0; }
 
-/* ── PROGRESS BAR ── */
-.progress-bar-wrap {
-  background: var(--dark); border-bottom: 1px solid var(--border);
-  padding: 10px 20px;
-}
-.progress-stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: 12px; }
-.progress-stats-left { color: var(--stone); }
-.progress-stats-right { display: flex; gap: 14px; }
-.stat-done { color: var(--canopy); }
-.stat-mod { color: #5A8ABB; }
-.stat-skip { color: var(--hard); }
-.stat-acwr { font-weight: 500; }
-.progress-track { height: 3px; background: var(--border); border-radius: 2px; }
-.progress-fill { height: 100%; border-radius: 2px; background: var(--fire); transition: width 0.4s; }
+/* ── REPORT CARDS ── */
+.report-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px; }
+.report-card { background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:18px; }
+.report-card.highlight { border-color:var(--fire); }
+.rc-label { font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:6px; }
+.rc-value { font-size:36px;font-weight:300;line-height:1;margin-bottom:4px; }
+.rc-sub { font-size:12px;color:var(--stone); }
+.rc-bar-wrap { margin-top:10px; }
+.rc-bar-track { height:5px;background:var(--border);border-radius:3px;margin-top:4px; }
+.rc-bar-fill { height:100%;border-radius:3px;transition:width 0.4s; }
+.status-badge { display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase; }
+.badge-green { background:#1A2E1A;color:var(--canopy);border:1px solid var(--canopy); }
+.badge-amber { background:#2A2010;color:#D4A020;border:1px solid #D4A020; }
+.badge-red { background:#2A1A1A;color:var(--hard);border:1px solid var(--hard); }
+.badge-blue { background:#1A2030;color:#5A8ABB;border:1px solid #5A8ABB; }
 
-/* ── TABS ── */
-.tabs {
-  display: flex; background: var(--asphalt);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 52px; z-index: 99;
-  overflow-x: auto;
-}
-.tab {
-  padding: 12px 18px; font-size: 13px; color: var(--subtle);
-  border: none; background: none; cursor: pointer;
-  font-family: 'DM Sans', sans-serif; white-space: nowrap;
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
-  transition: color .15s, border-color .15s;
-}
-.tab.active { color: var(--dust); border-bottom-color: var(--fire); }
-.tab:hover:not(.active) { color: var(--dust); }
-.panel { display: none; }
-.panel.active { display: block; }
-
-/* ── CONTENT ── */
-.content { max-width: 860px; margin: 0 auto; padding: 20px 16px; }
-
-/* ── PHASE ── */
-.phase { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 18px; }
-.phase-header {
-  padding: 14px 18px; display: flex; align-items: center;
-  justify-content: space-between; cursor: pointer;
-}
-.phase-1 .phase-header { background: #1E1E1C; }
-.phase-2 .phase-header { background: #1E1C18; }
-.phase-3 .phase-header { background: #1E1818; }
-.phase-title-wrap { display: flex; align-items: center; gap: 10px; }
-.phase-num { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--subtle); }
-.phase-title { font-size: 15px; font-weight: 500; }
-.phase-meta { display: flex; align-items: center; gap: 12px; }
-.phase-weeks { font-size: 12px; color: var(--subtle); }
-.toggle { font-size: 12px; color: var(--subtle); transition: transform .2s; display: inline-block; }
-.toggle.open { transform: rotate(180deg); }
-.phase-body { display: none; }
-.phase-body.open { display: block; }
-
-/* ── WEEK ── */
-.week-header {
-  padding: 9px 18px; background: #161614;
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center;
-}
-.week-title { font-size: 13px; font-weight: 500; }
-.week-sub { font-size: 11px; color: var(--subtle); margin-left: 8px; }
-.week-load { font-size: 11px; color: var(--stone); }
-
-/* ── SESSION ROW ── */
-.session-row {
-  border-bottom: 1px solid var(--border);
-  border-left: 3px solid transparent;
-  transition: background 0.2s, border-color 0.2s;
-}
-.session-row.status-done { background: #1A221A; border-left-color: var(--canopy); }
-.session-row.status-skipped { background: #221A1A; border-left-color: var(--hard); }
-.session-row.status-modified { background: #1A1E28; border-left-color: #3A5A8A; }
-.session-main {
-  display: grid; grid-template-columns: 36px 12px 1fr auto;
-  gap: 10px; align-items: start; padding: 11px 16px;
-  cursor: pointer;
-}
-.session-main.no-expand { cursor: default; }
-.day-name { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--subtle); text-transform: uppercase; padding-top: 3px; }
-.session-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
-.session-text { font-size: 13px; line-height: 1.5; }
-.session-text.skipped { color: var(--subtle); text-decoration: line-through; }
-.session-actions { display: flex; gap: 5px; align-items: center; }
-.btn-status {
-  width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
-  background: transparent; color: var(--subtle); font-size: 13px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; font-family: inherit;
-}
-.btn-status.done-active { background: var(--canopy); border-color: var(--canopy); color: #fff; }
-.btn-status.skip-active { background: var(--hard); border-color: var(--hard); color: #fff; }
-.expand-arrow { font-size: 12px; color: var(--subtle); transition: transform 0.2s; }
-.expand-arrow.open { transform: rotate(180deg); }
-
-/* ── TAGS ── */
-.tag {
-  display: inline-block; font-size: 10px; font-weight: 500;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 1px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
-}
-.tag-heat { color: var(--fire); background: #2A1A10; border: 1px solid #4A2A18; }
-.tag-str  { color: #9A7ACA; background: #1E1828; border: 1px solid #3A2A5A; }
-.tag-mod  { color: #5A8ABB; background: #1A2030; border: 1px solid #2A3A5A; }
-.tag-rpe  { color: var(--stone); background: var(--dark); border: 1px solid var(--border); }
-
-/* ── EXPAND PANEL ── */
-.expand-panel { padding: 0 16px 14px 58px; display: flex; flex-direction: column; gap: 12px; }
-
-.field-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--subtle); margin-bottom: 5px; }
-
-.rpe-grid { display: flex; gap: 4px; flex-wrap: wrap; }
-.rpe-btn {
-  width: 32px; height: 32px; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--dark);
-  color: var(--stone); font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: all 0.15s; font-family: inherit;
-}
-.rpe-btn.active { background: var(--fire); border-color: var(--fire); color: #fff; }
-.rpe-label { font-size: 11px; color: var(--subtle); align-self: center; margin-left: 6px; }
-
-.duration-row { display: flex; gap: 16px; align-items: flex-end; }
-.duration-input {
-  width: 72px; padding: 7px 10px; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--dark);
-  color: var(--dust); font-size: 13px; font-family: inherit; outline: none;
-}
-.duration-planned { font-size: 12px; color: var(--subtle); padding-bottom: 8px; }
-
-.mod-check { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--stone); }
-.mod-check input { accent-color: var(--fire); width: 14px; height: 14px; }
-.mod-textarea {
-  width: 100%; padding: 8px 10px; border-radius: 6px; margin-top: 6px;
-  border: 1px solid var(--border); background: var(--dark);
-  color: var(--dust); font-size: 13px; font-family: inherit;
-  resize: vertical; line-height: 1.5; outline: none;
-}
-.load-preview {
-  background: var(--dark); border-radius: 6px; padding: 8px 12px;
-  font-size: 12px; color: var(--stone); display: flex; gap: 16px;
-}
-.load-preview strong { color: var(--dust); }
-
-/* ── ACWR TAB ── */
-.dark-card {
-  background: var(--dark); border: 1px solid var(--border);
-  border-radius: 10px; padding: 18px; margin-bottom: 16px;
-}
-.dark-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-.dark-card p { font-size: 13px; color: var(--stone); line-height: 1.7; }
-.acwr-value { font-size: 52px; font-weight: 300; line-height: 1; }
-.acwr-status { font-size: 14px; font-weight: 500; margin-top: 6px; }
-.acwr-desc { font-size: 13px; color: var(--stone); margin-top: 4px; }
-.acwr-flex { display: flex; gap: 24px; align-items: center; }
-canvas { width: 100%; height: auto; border-radius: 8px; display: block; }
-.legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--stone); }
-.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-.week-table { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.week-table-header {
-  display: grid; grid-template-columns: 60px 1fr 80px 60px;
-  padding: 10px 16px; background: #161614;
-  font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--subtle);
-  border-bottom: 1px solid var(--border);
-}
-.week-table-row {
-  display: grid; grid-template-columns: 60px 1fr 80px 60px;
-  padding: 10px 16px; border-bottom: 1px solid var(--border);
-  font-size: 13px; align-items: center;
-}
-.week-table-row:last-child { border-bottom: none; }
-.load-bar-wrap { display: flex; align-items: center; gap: 8px; }
-.load-bar { height: 4px; background: var(--fire); border-radius: 2px; min-width: 2px; }
-
-/* ── LOG TAB ── */
-.log-row {
-  display: grid; grid-template-columns: 56px 64px 1fr auto;
-  gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border);
-  align-items: start;
-}
-.log-row:last-child { border-bottom: none; }
-.log-week { font-size: 11px; color: var(--subtle); font-weight: 600; }
-.log-status { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
-.log-note { font-size: 12px; color: #5A8ABB; margin-top: 3px; }
-.log-load { text-align: right; }
-.log-rpe { font-size: 13px; font-weight: 500; }
-.log-au { font-size: 11px; color: var(--subtle); }
-
-/* ── INFO BARS ── */
-.heat-bar { background: #1E1410; border-bottom: 1px solid #3A2018; padding: 8px 18px; font-size: 12px; color: #CC8060; }
-.info-bar { background: #161614; border-bottom: 1px solid var(--border); padding: 8px 18px; font-size: 12px; color: var(--subtle); }
-
-/* ── FOOTER ── */
-.footer {
-  background: var(--dark); border-top: 1px solid var(--border);
-  padding: 20px; display: flex; justify-content: space-between;
-  align-items: center; margin-top: 40px;
-}
-.footer-logo { font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
-.footer-logo span { color: var(--fire); }
-.footer-sub { font-size: 12px; color: var(--subtle); margin-top: 2px; }
-.footer-right { font-size: 12px; color: var(--subtle); text-align: right; }
-
-/* ── SETUP SCREEN ── */
-.setup-screen {
-  max-width: 560px; margin: 60px auto; padding: 0 20px;
-}
-.setup-screen h2 { font-size: 28px; font-weight: 300; letter-spacing: -0.02em; margin-bottom: 12px; }
-.setup-screen p { font-size: 14px; color: var(--stone); line-height: 1.7; margin-bottom: 20px; }
-.setup-input {
-  width: 100%; padding: 10px 14px; border-radius: 8px;
-  border: 1px solid var(--border); background: var(--dark);
-  color: var(--dust); font-size: 14px; font-family: inherit;
-  outline: none; margin-bottom: 10px;
-}
-.setup-input:focus { border-color: var(--fire); }
-.btn-primary {
-  background: var(--fire); color: #fff; border: none;
-  padding: 10px 20px; border-radius: 8px; font-size: 14px;
-  font-weight: 500; cursor: pointer; font-family: inherit;
-  transition: opacity 0.15s;
-}
-.btn-primary:hover { opacity: 0.88; }
-.setup-steps { margin-top: 28px; }
-.setup-step { display: flex; gap: 12px; margin-bottom: 16px; }
-.step-num {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--fire); color: #fff; font-size: 11px; font-weight: 600;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  margin-top: 2px;
-}
-.step-body { font-size: 13px; color: var(--stone); line-height: 1.6; }
-.step-body strong { color: var(--dust); }
-.step-body code {
-  background: var(--dark); border: 1px solid var(--border);
-  padding: 1px 6px; border-radius: 3px; font-size: 12px;
-  color: var(--stone); font-family: monospace;
-}
-
-@media (max-width: 600px) {
-  .acwr-flex { flex-direction: column; }
-  .week-table-header, .week-table-row { grid-template-columns: 50px 1fr 60px; }
-  .week-table-header > *:last-child, .week-table-row > *:last-child { display: none; }
-  .log-row { grid-template-columns: 46px 54px 1fr; }
-  .log-row > *:last-child { display: none; }
+/* ── SETUP ── */
+.setup-screen { max-width:560px;margin:60px auto;padding:0 20px; }
+.setup-screen h2 { font-size:28px;font-weight:300;letter-spacing:-0.02em;margin-bottom:12px; }
+.setup-screen p { font-size:14px;color:var(--stone);line-height:1.7;margin-bottom:20px; }
+.setup-input { width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--dark);color:var(--dust);font-size:14px;font-family:inherit;outline:none;margin-bottom:10px; }
+.setup-input:focus { border-color:var(--fire); }
+.btn-primary { background:var(--fire);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s; }
+.btn-primary:hover { opacity:0.88; }
+.setup-step { display:flex;gap:12px;margin-bottom:16px; }
+.step-num { width:24px;height:24px;border-radius:50%;background:var(--fire);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px; }
+.step-body { font-size:13px;color:var(--stone);line-height:1.6; }
+.step-body strong { color:var(--dust); }
+.step-body code { background:var(--dark);border:1px solid var(--border);padding:1px 6px;border-radius:3px;font-size:12px;color:var(--stone);font-family:monospace; }
+.footer { background:var(--dark);border-top:1px solid var(--border);padding:20px;display:flex;justify-content:space-between;align-items:center;margin-top:40px; }
+.footer-logo { font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase; }
+.footer-logo span { color:var(--fire); }
+.footer-sub { font-size:12px;color:var(--subtle);margin-top:2px; }
+.divider { height:1px;background:var(--border);margin:20px 0; }
+@media(max-width:640px){
+  .report-grid{grid-template-columns:1fr}
+  .knee-day-grid{grid-template-columns:repeat(4,1fr)}
+  .wt-header,.wt-row{grid-template-columns:50px 1fr 60px 60px}
+  .wt-header>*:nth-child(5),.wt-header>*:nth-child(6),.wt-row>*:nth-child(5),.wt-row>*:nth-child(6){display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ SETUP SCREEN (shown if no Apps Script URL configured) ═══ -->
+<!-- SETUP -->
 <div id="setupScreen" style="display:none">
-  <nav class="nav">
-    <div class="nav-logo">ULTRA<span>NORMAL</span></div>
-    <div class="nav-right">Training Tracker</div>
-  </nav>
+  <nav class="nav"><div class="nav-logo">ULTRA<span>NORMAL</span></div><div class="nav-right">Training Tracker</div></nav>
   <div class="setup-screen">
     <span style="font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--fire);display:block;margin-bottom:12px">First-time setup</span>
     <h2>Connect your Google Sheet</h2>
-    <p>Your training data will live in a Google Sheet you own. Enter your Apps Script URL below to link it up — this only takes a minute.</p>
-
-    <div class="setup-steps">
-      <div class="setup-step">
-        <div class="step-num">1</div>
-        <div class="step-body">Open your Google Sheet: <strong>SCC Training Tracker — Data</strong> (already created in your Drive)</div>
-      </div>
-      <div class="setup-step">
-        <div class="step-num">2</div>
-        <div class="step-body">Click <strong>Extensions → Apps Script</strong>, paste in the script from <code>apps-script.gs</code>, then click <strong>Save</strong></div>
-      </div>
-      <div class="setup-step">
-        <div class="step-num">3</div>
-        <div class="step-body">Click <strong>Deploy → New deployment → Web app</strong>. Set access to <strong>Anyone</strong>. Copy the URL.</div>
-      </div>
-      <div class="setup-step">
-        <div class="step-num">4</div>
-        <div class="step-body">Paste the URL below and click Connect.</div>
-      </div>
-    </div>
-
+    <p>Your training data lives in the Google Sheet already created in your Drive. Paste your Apps Script web app URL below to connect.</p>
+    <div class="setup-step"><div class="step-num">1</div><div class="step-body">Open <strong>SCC Training Tracker — Data</strong> in Google Drive</div></div>
+    <div class="setup-step"><div class="step-num">2</div><div class="step-body">Click <strong>Extensions → Apps Script</strong>, paste the script, save</div></div>
+    <div class="setup-step"><div class="step-num">3</div><div class="step-body"><strong>Deploy → New deployment → Web app</strong>. Access: <strong>Anyone</strong>. Copy the URL.</div></div>
+    <div class="setup-step"><div class="step-num">4</div><div class="step-body">Paste URL below and connect.</div></div>
     <input class="setup-input" id="scriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/...">
     <button class="btn-primary" onclick="saveScriptUrl()">Connect & start tracking</button>
   </div>
 </div>
 
-<!-- ═══ MAIN APP ═══ -->
+<!-- MAIN APP -->
 <div id="mainApp" style="display:none">
-
 <nav class="nav">
   <div class="nav-logo">ULTRA<span>NORMAL</span></div>
   <div class="nav-right">
@@ -339,12 +191,12 @@ canvas { width: 100%; height: auto; border-radius: 8px; display: block; }
 
 <div class="progress-bar-wrap">
   <div class="progress-stats">
-    <div class="progress-stats-left" id="progressLabel">0 of 0 sessions complete</div>
+    <div style="color:var(--stone)" id="progressLabel">0 of 0 sessions complete</div>
     <div class="progress-stats-right">
-      <span class="stat-done" id="statDone">✓ 0</span>
-      <span class="stat-mod" id="statMod">~ 0</span>
-      <span class="stat-skip" id="statSkip">✕ 0</span>
-      <span class="stat-acwr" id="statACWR" style="color:var(--subtle)"></span>
+      <span style="color:var(--canopy)" id="statDone">✓ 0</span>
+      <span style="color:#5A8ABB" id="statMod">~ 0</span>
+      <span style="color:var(--hard)" id="statSkip">✕ 0</span>
+      <span id="statACWR" style="color:var(--subtle);font-weight:500"></span>
     </div>
   </div>
   <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -352,6 +204,10 @@ canvas { width: 100%; height: auto; border-radius: 8px; display: block; }
 
 <div class="tabs">
   <button class="tab active" onclick="showTab('plan',this)">Training Plan</button>
+  <button class="tab" onclick="showTab('status',this)">Live Status</button>
+  <button class="tab" onclick="showTab('weekly',this)">Weekly Report</button>
+  <button class="tab" onclick="showTab('monthly',this)">Monthly Report</button>
+  <button class="tab" onclick="showTab('knee',this)">Knee Tracker</button>
   <button class="tab" onclick="showTab('acwr',this)">Load & ACWR</button>
   <button class="tab" onclick="showTab('log',this)">Session Log</button>
 </div>
@@ -361,31 +217,46 @@ canvas { width: 100%; height: auto; border-radius: 8px; display: block; }
   <div class="content" id="planContent"></div>
 </div>
 
+<!-- LIVE STATUS -->
+<div id="tab-status" class="panel">
+  <div class="content" id="statusContent"></div>
+</div>
+
+<!-- WEEKLY REPORT -->
+<div id="tab-weekly" class="panel">
+  <div class="content" id="weeklyContent"></div>
+</div>
+
+<!-- MONTHLY REPORT -->
+<div id="tab-monthly" class="panel">
+  <div class="content" id="monthlyContent"></div>
+</div>
+
+<!-- KNEE TRACKER -->
+<div id="tab-knee" class="panel">
+  <div class="content" id="kneeContent"></div>
+</div>
+
 <!-- ACWR -->
 <div id="tab-acwr" class="panel">
   <div class="content">
     <div class="dark-card">
       <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:6px">What is ACWR?</div>
-      <p>The <strong style="color:var(--dust)">Acute:Chronic Workload Ratio</strong> compares your last 7 days of training load (acute) against your rolling 4-week average (chronic). Load = RPE × session duration in minutes. Log your RPE to populate this chart.</p>
+      <p>The <strong style="color:var(--dust)">Acute:Chronic Workload Ratio</strong> compares your last 7 days of training load (acute) against your rolling 4-week average (chronic). Load = RPE × session duration in minutes.</p>
     </div>
-
-    <div class="dark-card" id="acwrCard">
-      <div style="color:var(--subtle);font-size:13px">Log RPE on your sessions to see your ACWR.</div>
-    </div>
-
+    <div class="dark-card" id="acwrCard"><div style="color:var(--subtle);font-size:13px">Log RPE on your sessions to see your ACWR.</div></div>
     <div class="dark-card">
       <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:12px">ACWR over time</div>
-      <canvas id="acwrCanvas" width="820" height="200"></canvas>
+      <canvas id="acwrCanvas" width="860" height="200"></canvas>
       <div class="legend-row">
         <div class="legend-item"><div class="legend-dot" style="background:var(--stone)"></div>Under 0.8 — Undertraining</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--canopy)"></div>0.8–1.3 — Optimal</div>
         <div class="legend-item"><div class="legend-dot" style="background:#D4A020"></div>1.3–1.5 — Caution</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--hard)"></div>&gt;1.5 — High risk</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--hard)"></div>>1.5 — High risk</div>
       </div>
     </div>
-
     <div class="week-table">
-      <div class="week-table-header"><div>Week</div><div>Load (AU)</div><div>Sessions</div><div>Avg RPE</div></div>
+      <div class="wt-header"><div>Week</div><div>Load (AU)</div><div>Sessions</div><div>Avg RPE</div><div>Prescribed</div><div>Actual</div></div>
       <div id="weekTableBody"></div>
     </div>
   </div>
@@ -402,27 +273,20 @@ canvas { width: 100%; height: auto; border-radius: 8px; display: block; }
 </div>
 
 <footer class="footer">
-  <div>
-    <div class="footer-logo">ULTRA<span>NORMAL</span></div>
-    <div class="footer-sub">Trail running · Physio · Life.</div>
-  </div>
-  <div class="footer-right">SCC 50km · 12 Sep 2026<br><span style="color:var(--fire)">Syncs to Google Sheets</span></div>
+  <div><div class="footer-logo">ULTRA<span>NORMAL</span></div><div class="footer-sub">Trail running · Physio · Life.</div></div>
+  <div style="font-size:12px;color:var(--subtle);text-align:right">SCC 50km · 12 Sep 2026<br><span style="color:var(--fire)">Syncs to Google Sheets</span></div>
 </footer>
-
-</div><!-- /mainApp -->
+</div>
 
 <script>
-// ════════════════════════════════════════════════
-// CONFIG — paste your Apps Script URL here after setup
-// ════════════════════════════════════════════════
+// ════════════ CONFIG ════════════
 const SCRIPT_URL_KEY = "scc_script_url";
+const KNEE_PAIN_LABELS = ["","None","Minimal","Mild","Mild+","Moderate","Moderate+","Significant","Significant+","Severe","Worst possible"];
+const RPE_LABELS = ["","Very easy","Easy","Moderate","Somewhat hard","Hard","Hard+","Very hard","Very hard+","Max effort","Maximal"];
 
-// ════════════════════════════════════════════════
-// PLAN DATA
-// ════════════════════════════════════════════════
+// ════════════ PLAN DATA ════════════
 const PHASES = [
-  {
-    id:1, label:"Phase 01", title:"Rebuild the Engine", meta:"Weeks 1–4 · No heat",
+  { id:1, label:"Phase 01", title:"Rebuild the Engine", meta:"Weeks 1–4 · No heat",
     weeks:[
       { week:1, sub:"Add structure", days:[
         {day:"Mon",type:"rest",    s:"Rest. Knee check-in.",dur:0},
@@ -438,7 +302,7 @@ const PHASES = [
         {day:"Tue",type:"easy",   s:"50 min easy rolling treadmill — alternate 5 min at 6%, 5 min at 3%.",dur:50},
         {day:"Wed",type:"strength",s:"40 min easy 3–4% incline + Mountain Legs Phase 1 — 25 step-ups/leg, 25 rear lunges/leg, 10 goblet squats.",dur:50},
         {day:"Thu",type:"easy",   s:"45 min easy, 5–6% incline. 5×20-sec strides at the end of the run.",dur:45},
-        {day:"Fri",type:"easy",   s:"50 min easy, 5–7% incline. Time on feet. Keep it genuinely conversational.",dur:50},
+        {day:"Fri",type:"easy",   s:"50 min easy, 5–7% incline. Time on feet. Genuinely conversational.",dur:50},
         {day:"Sat",type:"rest",   s:"Rest.",dur:0},
         {day:"Sun",type:"rest",   s:"Rest.",dur:0},
       ]},
@@ -462,40 +326,39 @@ const PHASES = [
       ]},
     ]
   },
-  {
-    id:2, label:"Phase 02", title:"Build the Base", meta:"Weeks 5–9 · Heat + Fatigue Resistance active",
+  { id:2, label:"Phase 02", title:"Build the Base", meta:"Weeks 5–9 · Heat + Fatigue Resistance active",
     weeks:[
-      { week:5, sub:"Lift intensity", heat:"Heat suit on Wed & Fri easy sessions (15 min mid-run). Evening bath 3–4 nights, 20 min at ~40°C.", days:[
+      { week:5, sub:"Lift intensity", heat:"Heat suit on Wed & Fri easy sessions (15 min). Evening bath 3–4 nights, 20 min at ~40°C.", days:[
         {day:"Mon",type:"rest",   s:"Rest.",dur:0},
         {day:"Tue",type:"hard",   s:"60 min — 15 easy, 5×3-min hill repeats at 9–10% (hard, walk recovery), 15 easy. No suit.",dur:60},
-        {day:"Wed",type:"strength",s:"55 min easy + Mountain Legs Phase 2 — 40 step-ups/leg, 10 Bulgarian split squats/leg, 10 single-leg deadlifts. Heat suit middle 15 min. Evening: hot bath 20 min.",dur:70,heat:true},
+        {day:"Wed",type:"strength",s:"55 min easy + Mountain Legs Phase 2 — 40 step-ups/leg, 10 Bulgarian split squats/leg, 10 single-leg deadlifts. Heat suit last 15 min. Evening: hot bath 20 min.",dur:70,heat:true},
         {day:"Thu",type:"mod",    s:"65 min uphill threshold — 10 easy, 25 min at 8–10% moderate-hard, 15 easy. No suit.",dur:65},
-        {day:"Fri",type:"easy",   s:"50 min easy recovery, 4% incline. Heat suit middle 15 min. Evening: hot bath 20 min.",dur:50,heat:true},
+        {day:"Fri",type:"easy",   s:"50 min easy recovery, 4% incline. Heat suit last 15 min. Evening: hot bath 20 min.",dur:50,heat:true},
         {day:"Sat",type:"long",   s:"Long run — 75 min. Outdoors. Easy, hike the hills, eat on the run. No suit. Evening: hot bath 20 min.",dur:75},
         {day:"Sun",type:"rest",   s:"Rest. Evening: hot bath 20 min.",dur:0},
       ]},
       { week:6, sub:"Aerobic build", heat:"Heat suit on Tue & Fri (15–20 min). Evening bath 3–4 nights, 25 min.", days:[
         {day:"Mon",type:"rest",   s:"Rest.",dur:0},
-        {day:"Tue",type:"easy",   s:"60 min easy rolling, varied incline 4–8%. Heat suit middle 20 min. 5×20-sec strides at the end of the run. Evening: hot bath 25 min.",dur:60,heat:true},
+        {day:"Tue",type:"easy",   s:"60 min easy rolling, varied incline 4–8%. Heat suit last 20 min. 5×20-sec strides at the end of the run. Evening: hot bath 25 min.",dur:60,heat:true},
         {day:"Wed",type:"mod",    s:"65 min uphill threshold — 10 easy, 30 min at 8–10% moderate-hard, 15 easy. No suit.",dur:65},
         {day:"Thu",type:"strength",s:"55 min easy 4% incline + 50 step-ups/leg, 10 Bulgarian split squats/leg, 2×10 back squats, 10 single-leg calf raises.",dur:70},
-        {day:"Fri",type:"easy",   s:"60 min easy, 5–7% incline. Heat suit middle 20 min. Evening: hot bath 25 min.",dur:60,heat:true},
+        {day:"Fri",type:"easy",   s:"60 min easy, 5–7% incline. Heat suit last 20 min. Evening: hot bath 25 min.",dur:60,heat:true},
         {day:"Sat",type:"long",   s:"90 min outdoors. Easy effort, run/hike, eat every 45 min. Start wearing race vest. Evening: hot bath 25 min.",dur:90},
         {day:"Sun",type:"rest",   s:"Rest. Evening: hot bath 25 min.",dur:0},
       ]},
       { week:7, sub:"Peak intensity", heat:"Peak heat block. Suit on Wed & Fri (20 min). Evening bath 4 nights, 25–30 min.", days:[
         {day:"Mon",type:"rest",   s:"Rest.",dur:0},
         {day:"Tue",type:"hard",   s:"70 min — 15 easy, 6×3-min hill repeats at 10–12% (hard), walk recovery, 15 easy. No suit. Evening: hot bath 25 min.",dur:70},
-        {day:"Wed",type:"strength",s:"60 min easy 4% incline + 60 step-ups/leg, 10 Bulgarian split squats/leg, 2×10 back squats, 10 single-leg deadlifts, 15 single-leg calf raises. Heat suit middle 20 min. Evening: hot bath 30 min.",dur:80,heat:true},
+        {day:"Wed",type:"strength",s:"60 min easy 4% incline + 60 step-ups/leg, 10 Bulgarian split squats/leg, 2×10 back squats, 10 single-leg deadlifts, 15 single-leg calf raises. Heat suit last 20 min. Evening: hot bath 30 min.",dur:80,heat:true},
         {day:"Thu",type:"mod",    s:"70 min uphill threshold — 15 easy, 30 min at 8–10%, 15 easy. Key session. No suit. Evening: hot bath 25 min.",dur:70},
-        {day:"Fri",type:"easy",   s:"55 min easy, 5% incline. Heat suit middle 20 min. Evening: hot bath 30 min.",dur:55,heat:true},
+        {day:"Fri",type:"easy",   s:"55 min easy, 5% incline. Heat suit last 20 min. Evening: hot bath 30 min.",dur:55,heat:true},
         {day:"Sat",type:"long",   s:"Long run — 2 hrs. Outdoors. Easy throughout. Walk every climb. Eat every 30–45 min.",dur:120},
         {day:"Sun",type:"rest",   s:"Rest.",dur:0},
       ]},
       { week:8, sub:"Recovery week", heat:"1 suit session only, 3 baths. Let adaptations consolidate.", days:[
         {day:"Mon",type:"rest",   s:"Rest.",dur:0},
-        {day:"Tue",type:"easy",   s:"50 min easy aerobic, 4% incline. Heat suit middle 20 min. Evening: hot bath 25 min.",dur:50,heat:true},
-        {day:"Wed",type:"strength",s:"55 min — 4×3-min at 8% moderate. Mountain Legs recovery only: 30 step-ups/leg + 30 lunges. No suit. Evening: hot bath 25 min.",dur:65},
+        {day:"Tue",type:"easy",   s:"50 min easy aerobic, 4% incline. Heat suit last 20 min. Evening: hot bath 25 min.",dur:50,heat:true},
+        {day:"Wed",type:"strength",s:"55 min — 4×3-min at 8% moderate. Mountain Legs recovery: 30 step-ups/leg + 30 lunges. No suit. Evening: hot bath 25 min.",dur:65},
         {day:"Thu",type:"easy",   s:"50 min easy, 4–5% incline. No suit.",dur:50},
         {day:"Fri",type:"easy",   s:"50 min easy, 4–5% incline. No suit. Evening: hot bath 25 min.",dur:50},
         {day:"Sat",type:"long",   s:"65 min easy effort, outdoors if possible. Assess body and knee.",dur:65},
@@ -504,21 +367,20 @@ const PHASES = [
       { week:9, sub:"Race specificity", heat:"Final big heat block. Suit on Wed & Fri (25–30 min). Evening bath 4 nights, 30 min.", days:[
         {day:"Mon",type:"rest",   s:"Rest.",dur:0},
         {day:"Tue",type:"hard",   s:"70 min — 15 easy, 6×3-min hill repeats at 10–12%, walk recovery, 15 easy. No suit. Evening: hot bath 30 min.",dur:70},
-        {day:"Wed",type:"strength",s:"65 min easy varied 4–8% + 70–80 step-ups/leg, 10 Bulgarian split squats/leg, 2×10 back squats, 10 single-leg deadlifts, 20 calf raises. Heat suit middle 25–30 min. Evening: hot bath 30 min.",dur:85,heat:true},
+        {day:"Wed",type:"strength",s:"65 min easy varied 4–8% + 70–80 step-ups/leg, 10 Bulgarian split squats/leg, 2×10 back squats, 10 single-leg deadlifts, 20 calf raises. Heat suit last 25–30 min. Evening: hot bath 30 min.",dur:85,heat:true},
         {day:"Thu",type:"mod",    s:"75 min uphill threshold — 15 easy, 35 min at 8–10%, 15 easy. Biggest threshold session. No suit. Evening: hot bath 30 min.",dur:75},
-        {day:"Fri",type:"easy",   s:"55 min easy, 5% incline. Heat suit middle 25–30 min. Evening: hot bath 30 min.",dur:55,heat:true},
-        {day:"Sat",type:"long",   s:"Long run — 2.5 hrs. Outdoors. Race simulation: easy effort, hike all climbs, eat every 30 min, race pack. Biggest day of the plan.",dur:150},
+        {day:"Fri",type:"easy",   s:"55 min easy, 5% incline. Heat suit last 25–30 min. Evening: hot bath 30 min.",dur:55,heat:true},
+        {day:"Sat",type:"long",   s:"Long run — 2.5 hrs. Outdoors. Race simulation: easy effort, hike all climbs, eat every 30 min, race pack.",dur:150},
         {day:"Sun",type:"rest",   s:"Rest.",dur:0},
       ]},
     ]
   },
-  {
-    id:3, label:"Phase 03", title:"Sharpen & Taper", meta:"Weeks 10–12 · Heat & strength taper off",
+  { id:3, label:"Phase 03", title:"Sharpen & Taper", meta:"Weeks 10–12 · Heat & strength taper off",
     weeks:[
       { week:10, sub:"Final push", heat:"1 suit session (20 min). Peak passive bath block: 4–5 nights, 30 min. Then we stop.", days:[
         {day:"Mon",type:"rest",   s:"Rest. Evening: hot bath 30 min.",dur:0},
         {day:"Tue",type:"hard",   s:"65 min — 15 easy, 5×3-min hills at 10–12%, 15 easy. Volume drops, intensity stays. No suit. Evening: hot bath 30 min.",dur:65},
-        {day:"Wed",type:"strength",s:"60 min easy 4% incline + 50 step-ups/leg, 10 split squats/leg, 2×10 back squats. Last full strength session. Heat suit middle 20 min. Evening: hot bath 30 min.",dur:75,heat:true},
+        {day:"Wed",type:"strength",s:"60 min easy 4% incline + 50 step-ups/leg, 10 split squats/leg, 2×10 back squats. Last full strength session. Heat suit last 20 min. Evening: hot bath 30 min.",dur:75,heat:true},
         {day:"Thu",type:"mod",    s:"65 min uphill threshold — 15 easy, 25 min at 8–10%, 15 easy. No suit. Evening: hot bath 30 min.",dur:65},
         {day:"Fri",type:"easy",   s:"50 min easy, 4–5% incline. No suit. Evening: hot bath 30 min — last hard bath night.",dur:50},
         {day:"Sat",type:"long",   s:"Long run — 2 hrs. Outdoors on trails. Easy throughout. Last big day. Trust what you've built.",dur:120},
@@ -527,7 +389,7 @@ const PHASES = [
       { week:11, sub:"Taper begins", heat:"No suit. Warm bath only, 2–3 nights, ~38°C, 20 min.", days:[
         {day:"Mon",type:"rest",   s:"Rest.",dur:0},
         {day:"Tue",type:"hard",   s:"55 min — 15 easy, 4×3-min hills at 10%, 15 easy. No suit. Evening: warm bath 20 min.",dur:55},
-        {day:"Wed",type:"strength",s:"50 min easy 3–4% incline + 20 step-ups/leg + 20 rear lunges only. Quick, light, stimulating not tiring. No suit. Evening: warm bath 20 min.",dur:55},
+        {day:"Wed",type:"strength",s:"50 min easy 3–4% incline + 20 step-ups/leg + 20 rear lunges only. Quick, light. No suit. Evening: warm bath 20 min.",dur:55},
         {day:"Thu",type:"easy",   s:"50 min easy with 5×20-sec strides at the end of the run. Keep legs sharp. No suit.",dur:50},
         {day:"Fri",type:"easy",   s:"40 min easy, relaxed. No suit. Evening: warm bath 20 min.",dur:40},
         {day:"Sat",type:"long",   s:"75 min easy trail run. Feel the legs coming alive. No pushing.",dur:75},
@@ -546,217 +408,225 @@ const PHASES = [
   },
 ];
 
-const TYPE_COLOR = {easy:"#4A7C59",mod:"#8A6C20",hard:"#C43020",long:"#1A5A6E",rest:"#555550",strength:"#5A3A7A"};
-const TYPE_LABEL = {easy:"Easy",mod:"Threshold",hard:"Intervals",long:"Long",rest:"Rest",strength:"Strength"};
-const RPE_LABELS = ["","Very easy","Easy","Moderate","Somewhat hard","Hard","Hard+","Very hard","Very hard+","Max effort","Maximal"];
+const TYPE_COLOR={easy:"#4A7C59",mod:"#8A6C20",hard:"#C43020",long:"#1A5A6E",rest:"#555550",strength:"#5A3A7A"};
 
-// ════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════
-let LOGS = {};
-let SCRIPT_URL = localStorage.getItem(SCRIPT_URL_KEY) || "";
-let expandedPhases = {1:true,2:false,3:false};
-let expandedSessions = {};
-let saveTimer = null;
-let syncStatus = "idle"; // idle | syncing | synced | error
+// ════════════ STATE ════════════
+let LOGS={}, KNEE={};
+let SCRIPT_URL=localStorage.getItem(SCRIPT_URL_KEY)||"";
+let expandedPhases={1:true,2:false,3:false};
+let expandedSessions={};
+let saveTimer=null;
 
-function setSyncStatus(s, label) {
-  syncStatus = s;
-  const dot = document.getElementById("syncDot");
-  const lbl = document.getElementById("syncLabel");
-  dot.className = "sync-dot " + s;
-  lbl.textContent = label;
+function setSyncStatus(s,label){
+  const dot=document.getElementById("syncDot");
+  const lbl=document.getElementById("syncLabel");
+  dot.className="sync-dot "+s;
+  lbl.textContent=label;
 }
 
-// ════════════════════════════════════════════════
-// GOOGLE SHEETS BACKEND
-// ════════════════════════════════════════════════
-async function loadFromSheet() {
-  if (!SCRIPT_URL) return;
-  setSyncStatus("syncing", "Loading…");
-  try {
-    const url = SCRIPT_URL + "?action=get";
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data && data.logs) {
-      LOGS = data.logs;
-    }
-    setSyncStatus("synced", "Synced");
+// ════════════ BACKEND ════════════
+async function loadFromSheet(){
+  if(!SCRIPT_URL)return;
+  setSyncStatus("syncing","Loading…");
+  try{
+    const res=await fetch(SCRIPT_URL+"?action=get");
+    const data=await res.json();
+    if(data.logs) LOGS=data.logs;
+    if(data.knee) KNEE=data.knee;
+    setSyncStatus("synced","Synced");
     render();
-  } catch(e) {
-    setSyncStatus("error", "Offline — changes saved locally");
-    // Fall back to localStorage
-    const local = localStorage.getItem("scc_logs_backup");
-    if (local) LOGS = JSON.parse(local);
+  }catch(e){
+    setSyncStatus("error","Offline — changes saved locally");
+    const local=localStorage.getItem("scc_backup");
+    if(local){const d=JSON.parse(local);LOGS=d.logs||{};KNEE=d.knee||{};}
     render();
   }
 }
 
-async function saveToSheet() {
-  localStorage.setItem("scc_logs_backup", JSON.stringify(LOGS));
-  if (!SCRIPT_URL) return;
-  setSyncStatus("syncing", "Saving…");
-  try {
-    await fetch(SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "set", logs: LOGS }),
-      headers: { "Content-Type": "text/plain" },
-    });
-    setSyncStatus("synced", "Saved ✓");
-  } catch(e) {
-    setSyncStatus("error", "Save failed — retrying");
-    setTimeout(saveToSheet, 5000);
+async function saveToSheet(){
+  localStorage.setItem("scc_backup",JSON.stringify({logs:LOGS,knee:KNEE}));
+  if(!SCRIPT_URL)return;
+  setSyncStatus("syncing","Saving…");
+  try{
+    await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify({action:"set",logs:LOGS,knee:KNEE}),headers:{"Content-Type":"text/plain"}});
+    setSyncStatus("synced","Saved ✓");
+  }catch(e){
+    setSyncStatus("error","Save failed — retrying");
+    setTimeout(saveToSheet,5000);
   }
 }
 
-function scheduleSave() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveToSheet, 800);
-}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveToSheet,800);}
+function updateLog(key,data){LOGS[key]={...(LOGS[key]||{}),...data};scheduleSave();render();}
+function updateKnee(dateKey,score){KNEE[dateKey]=score;scheduleSave();renderKnee();}
 
-function updateLog(key, data) {
-  LOGS[key] = { ...(LOGS[key] || {}), ...data };
-  scheduleSave();
-  render();
-}
-
-// ════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════
-function init() {
-  if (!SCRIPT_URL) {
-    document.getElementById("setupScreen").style.display = "block";
-  } else {
-    document.getElementById("mainApp").style.display = "block";
-    loadFromSheet();
-  }
-}
-
-function saveScriptUrl() {
-  const url = document.getElementById("scriptUrlInput").value.trim();
-  if (!url.startsWith("https://script.google.com")) {
-    alert("Please paste a valid Apps Script URL.");
-    return;
-  }
-  SCRIPT_URL = url;
-  localStorage.setItem(SCRIPT_URL_KEY, url);
-  document.getElementById("setupScreen").style.display = "none";
-  document.getElementById("mainApp").style.display = "block";
-  loadFromSheet();
-}
-
-// ════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════
-function allSessions() {
-  const out = [];
-  PHASES.forEach(ph => ph.weeks.forEach(wk => wk.days.forEach((d,di) => {
-    out.push({key:`w${wk.week}-d${di}`, weekNum:wk.week, dayIdx:di, ...d});
+// ════════════ HELPERS ════════════
+function allSessions(){
+  const out=[];
+  PHASES.forEach(ph=>ph.weeks.forEach(wk=>wk.days.forEach((d,di)=>{
+    out.push({key:`w${wk.week}-d${di}`,weekNum:wk.week,dayIdx:di,...d});
   })));
   return out;
 }
 
-function sessionLoad(key, dur) {
-  const log = LOGS[key];
-  if (!log || !log.rpe || (log.status !== "done" && log.status !== "modified")) return 0;
-  return log.rpe * (log.actualDuration !== undefined ? log.actualDuration : dur);
+function sessionLoad(key,dur){
+  const log=LOGS[key];
+  if(!log||!log.rpe||(log.status!=="done"&&log.status!=="modified"))return 0;
+  return log.rpe*(log.actualDuration!==undefined?log.actualDuration:dur);
 }
 
-function weeklyLoad(wk) {
-  const sessions = allSessions().filter(s => s.weekNum === wk);
-  return sessions.reduce((a,s) => a + sessionLoad(s.key, s.dur), 0);
+function weeklyLoad(wk){
+  return allSessions().filter(s=>s.weekNum===wk).reduce((a,s)=>a+sessionLoad(s.key,s.dur),0);
 }
 
-function calcACWR() {
-  const sessions = allSessions().sort((a,b) => a.weekNum !== b.weekNum ? a.weekNum-b.weekNum : a.dayIdx-b.dayIdx);
-  const loads = sessions.map(s => sessionLoad(s.key, s.dur));
-  return sessions.map((s,i) => {
-    const acute = loads.slice(Math.max(0,i-6),i+1).reduce((a,b)=>a+b,0);
-    const weeks = Math.max(1,Math.min(4,Math.ceil((i+1)/7)));
-    const chronic = loads.slice(Math.max(0,i-27),i+1).reduce((a,b)=>a+b,0) / weeks;
-    return {...s, acute, chronic, ratio: chronic>0 ? acute/chronic : null};
+function weekPrescribedMin(wk){
+  return allSessions().filter(s=>s.weekNum===wk&&s.type!=="rest").reduce((a,s)=>a+s.dur,0);
+}
+
+function weekActualMin(wk){
+  return allSessions().filter(s=>s.weekNum===wk&&s.type!=="rest").reduce((a,s)=>{
+    const log=LOGS[s.key];
+    if(!log||log.status==="skipped")return a;
+    if(log.status==="done"||log.status==="modified") return a+(log.actualDuration!==undefined?log.actualDuration:s.dur);
+    return a;
+  },0);
+}
+
+function calcACWR(){
+  const sessions=allSessions().sort((a,b)=>a.weekNum!==b.weekNum?a.weekNum-b.weekNum:a.dayIdx-b.dayIdx);
+  const loads=sessions.map(s=>sessionLoad(s.key,s.dur));
+  return sessions.map((s,i)=>{
+    const acute=loads.slice(Math.max(0,i-6),i+1).reduce((a,b)=>a+b,0);
+    const weeks=Math.max(1,Math.min(4,Math.ceil((i+1)/7)));
+    const chronic=loads.slice(Math.max(0,i-27),i+1).reduce((a,b)=>a+b,0)/weeks;
+    return{...s,acute,chronic,ratio:chronic>0?acute/chronic:null};
   });
 }
 
-function acwrColor(r) {
-  if (r===null) return "#888";
-  if (r<0.8) return "#C8C4BA";
-  if (r<1.3) return "#4A7C59";
-  if (r<1.5) return "#D4A020";
-  return "#C43020";
+function acwrColor(r){
+  if(r===null)return"#888";
+  if(r<0.8)return"#C8C4BA";
+  if(r<1.3)return"#4A7C59";
+  if(r<1.5)return"#D4A020";
+  return"#C43020";
 }
 
-// ════════════════════════════════════════════════
-// RENDER
-// ════════════════════════════════════════════════
-function render() {
+function kneeColor(v){
+  if(!v||v===0)return"var(--subtle)";
+  if(v<=3)return"var(--canopy)";
+  if(v<=6)return"#D4A020";
+  return"var(--hard)";
+}
+
+function kneeLabel(v){
+  if(!v||v===0)return"Not logged";
+  if(v<=3)return"Manageable";
+  if(v<=6)return"Moderate — monitor";
+  return"Significant — review load";
+}
+
+function weekKneePeak(wk){
+  // Week wk spans 7 days starting from (wk-1)*7 days after plan start
+  // We store knee by date string — find entries for this week's days
+  const keys=Object.keys(KNEE).filter(k=>k.startsWith(`w${wk}-`));
+  if(!keys.length)return null;
+  return Math.max(...keys.map(k=>KNEE[k]||0));
+}
+
+function todayDateKey(){
+  const d=new Date();
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getWeekDayKey(wk,di){return`w${wk}-d${di}`;}
+function getKneeDateKey(wk,di){return`w${wk}-knee-d${di}`;}
+
+// ════════════ INIT ════════════
+function init(){
+  if(!SCRIPT_URL){
+    document.getElementById("setupScreen").style.display="block";
+  }else{
+    document.getElementById("mainApp").style.display="block";
+    loadFromSheet();
+  }
+}
+
+function saveScriptUrl(){
+  const url=document.getElementById("scriptUrlInput").value.trim();
+  if(!url.startsWith("https://script.google.com")){alert("Please paste a valid Apps Script URL.");return;}
+  SCRIPT_URL=url;
+  localStorage.setItem(SCRIPT_URL_KEY,url);
+  document.getElementById("setupScreen").style.display="none";
+  document.getElementById("mainApp").style.display="block";
+  loadFromSheet();
+}
+
+// ════════════ RENDER ALL ════════════
+function render(){
   renderStats();
   renderPlan();
+  renderStatus();
+  renderWeekly();
+  renderMonthly();
+  renderKnee();
   renderACWR();
   renderLog();
 }
 
-function renderStats() {
-  const sessions = allSessions();
-  const active = sessions.filter(s=>s.type!=="rest");
-  const done = sessions.filter(s=>LOGS[s.key]?.status==="done").length;
-  const mod = sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
-  const skip = sessions.filter(s=>LOGS[s.key]?.status==="skipped").length;
-  const pct = active.length ? Math.round((done+mod)/active.length*100) : 0;
-  document.getElementById("progressLabel").textContent = `${done+mod} of ${active.length} sessions complete`;
-  document.getElementById("statDone").textContent = `✓ ${done} done`;
-  document.getElementById("statMod").textContent = `~ ${mod} modified`;
-  document.getElementById("statSkip").textContent = `✕ ${skip} skipped`;
-  document.getElementById("progressFill").style.width = pct+"%";
-
-  const acwr = calcACWR();
-  const latest = [...acwr].reverse().find(d=>d.ratio!==null);
-  if (latest) {
-    const el = document.getElementById("statACWR");
-    el.textContent = `ACWR ${latest.ratio.toFixed(2)}`;
-    el.style.color = acwrColor(latest.ratio);
+// ════════════ STATS BAR ════════════
+function renderStats(){
+  const sessions=allSessions();
+  const active=sessions.filter(s=>s.type!=="rest");
+  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
+  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+  const skip=sessions.filter(s=>LOGS[s.key]?.status==="skipped").length;
+  const pct=active.length?Math.round((done+mod)/active.length*100):0;
+  document.getElementById("progressLabel").textContent=`${done+mod} of ${active.length} sessions complete`;
+  document.getElementById("statDone").textContent=`✓ ${done} done`;
+  document.getElementById("statMod").textContent=`~ ${mod} modified`;
+  document.getElementById("statSkip").textContent=`✕ ${skip} skipped`;
+  document.getElementById("progressFill").style.width=pct+"%";
+  const acwr=calcACWR();
+  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
+  if(latest){
+    const el=document.getElementById("statACWR");
+    el.textContent=`ACWR ${latest.ratio.toFixed(2)}`;
+    el.style.color=acwrColor(latest.ratio);
   }
 }
 
-function renderPlan() {
-  const container = document.getElementById("planContent");
-  let html = "";
-  PHASES.forEach(ph => {
-    const open = expandedPhases[ph.id];
-    html += `<div class="phase phase-${ph.id}">
+// ════════════ PLAN TAB ════════════
+function renderPlan(){
+  const container=document.getElementById("planContent");
+  let html="";
+  PHASES.forEach(ph=>{
+    const open=expandedPhases[ph.id];
+    html+=`<div class="phase phase-${ph.id}">
       <div class="phase-header" onclick="togglePhase(${ph.id})">
-        <div class="phase-title-wrap">
-          <div class="phase-num">${ph.label}</div>
-          <div class="phase-title">${ph.title}</div>
-        </div>
-        <div class="phase-meta">
-          <div class="phase-weeks">${ph.meta}</div>
-          <div class="toggle ${open?"open":""}">▾</div>
-        </div>
+        <div class="phase-title-wrap"><div class="phase-num">${ph.label}</div><div class="phase-title">${ph.title}</div></div>
+        <div class="phase-meta"><div class="phase-weeks">${ph.meta}</div><div class="toggle ${open?"open":""}">▾</div></div>
       </div>
       <div class="phase-body ${open?"open":""}">`;
-
-    ph.weeks.forEach(wk => {
-      const wload = weeklyLoad(wk.week);
-      html += `<div class="week-header">
+    ph.weeks.forEach(wk=>{
+      const wload=weeklyLoad(wk.week);
+      const pmin=weekPrescribedMin(wk.week);
+      const amin=weekActualMin(wk.week);
+      html+=`<div class="week-header">
         <div><span class="week-title">Week ${wk.week}</span><span class="week-sub">${wk.sub}</span></div>
-        <div class="week-load">${wload>0?wload.toLocaleString()+" AU":""}</div>
+        <div class="week-load">${amin>0?`${amin}/${pmin} min`:""}${wload>0?` · ${wload.toLocaleString()} AU`:""}</div>
       </div>`;
-      if (wk.heat) html += `<div class="heat-bar">🔥 ${wk.heat}</div>`;
-
-      wk.days.forEach((d,di) => {
-        const key = `w${wk.week}-d${di}`;
-        const log = LOGS[key]||{};
-        const isRest = d.type==="rest";
-        const status = log.status||"";
-        const expKey = key;
-        const isExp = !!expandedSessions[expKey];
-        const color = TYPE_COLOR[d.type];
-        let rowClass = "session-row";
-        if (status) rowClass += " status-"+status;
-
-        html += `<div class="${rowClass}" id="row-${key}">
-          <div class="session-main${isRest?" no-expand":""}" onclick="${isRest?"":"toggleSession('"+key+"')"}"  >
+      if(wk.heat) html+=`<div class="heat-bar">🔥 ${wk.heat}</div>`;
+      wk.days.forEach((d,di)=>{
+        const key=`w${wk.week}-d${di}`;
+        const log=LOGS[key]||{};
+        const isRest=d.type==="rest";
+        const status=log.status||"";
+        const isExp=!!expandedSessions[key];
+        const color=TYPE_COLOR[d.type];
+        let rowClass="session-row";
+        if(status)rowClass+=" status-"+status;
+        html+=`<div class="${rowClass}">
+          <div class="session-main${isRest?" no-expand":""}" onclick="${isRest?"":"toggleSession('"+key+"')"}">
             <div class="day-name">${d.day}</div>
             <div class="session-dot" style="background:${color}"></div>
             <div class="session-text${status==="skipped"?" skipped":""}">
@@ -767,33 +637,28 @@ function renderPlan() {
               ${log.status==="modified"?'<span class="tag tag-mod">Modified</span>':""}
             </div>
             <div class="session-actions">`;
-
-        if (!isRest) {
-          html += `<button class="btn-status${status==="done"?" done-active":""}" onclick="event.stopPropagation();markStatus('${key}','done')" title="Done">✓</button>
-                   <button class="btn-status${status==="skipped"?" skip-active":""}" onclick="event.stopPropagation();markStatus('${key}','skipped')" title="Skip">✕</button>
-                   <div class="expand-arrow${isExp?" open":""}">▾</div>`;
+        if(!isRest){
+          html+=`<button class="btn-status${status==="done"?" done-active":""}" onclick="event.stopPropagation();markStatus('${key}','done')" title="Done">✓</button>
+                 <button class="btn-status${status==="skipped"?" skip-active":""}" onclick="event.stopPropagation();markStatus('${key}','skipped')" title="Skip">✕</button>
+                 <div class="expand-arrow${isExp?" open":""}">▾</div>`;
         }
-        html += `</div></div>`;
-
-        if (isExp && !isRest) {
-          const rpe = log.rpe||0;
-          const actualDur = log.actualDuration!==undefined?log.actualDuration:"";
-          const displayLoad = rpe>0 ? rpe*(actualDur!=""?actualDur:d.dur) : 0;
-          html += `<div class="expand-panel">
+        html+=`</div></div>`;
+        if(isExp&&!isRest){
+          const rpe=log.rpe||0;
+          const actualDur=log.actualDuration!==undefined?log.actualDuration:"";
+          const displayLoad=rpe>0?rpe*(actualDur!==""?actualDur:d.dur):0;
+          html+=`<div class="expand-panel">
             <div>
               <div class="field-label">Perceived Exertion (RPE 1–10)</div>
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                <div class="rpe-grid">
-                  ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="rpe-btn${rpe===n?" active":""}" onclick="setRPE('${key}',${n})">${n}</button>`).join("")}
-                </div>
+                <div class="rpe-grid">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="rpe-btn${rpe===n?" active":""}" onclick="setRPE('${key}',${n})">${n}</button>`).join("")}</div>
                 <span class="rpe-label">${rpe?RPE_LABELS[rpe]:""}</span>
               </div>
             </div>
             <div class="duration-row">
               <div>
                 <div class="field-label">Actual duration (min)</div>
-                <input class="duration-input" type="number" min="0" max="400" placeholder="${d.dur||0}"
-                  value="${actualDur}" onchange="setDuration('${key}',this.value)">
+                <input class="duration-input" type="number" min="0" max="400" placeholder="${d.dur||0}" value="${actualDur}" onchange="setDuration('${key}',this.value)">
               </div>
               <div class="duration-planned">Planned: ${d.dur} min</div>
             </div>
@@ -804,191 +669,547 @@ function renderPlan() {
               </label>
               ${log.modified?`<textarea class="mod-textarea" placeholder="What did you do instead?" onchange="setNote('${key}',this.value)">${log.note||""}</textarea>`:""}
             </div>
-            ${displayLoad>0?`<div class="load-preview">Session load: <strong>${displayLoad.toLocaleString()} AU</strong> &nbsp;·&nbsp; RPE ${rpe} × ${actualDur!=""?actualDur:d.dur} min</div>`:""}
+            ${displayLoad>0?`<div class="load-preview">Session load: <strong>${displayLoad.toLocaleString()} AU</strong> &nbsp;·&nbsp; RPE ${rpe} × ${actualDur!==""?actualDur:d.dur} min</div>`:""}
           </div>`;
         }
-        html += `</div>`;
+        html+=`</div>`;
       });
     });
-    html += `</div></div>`;
+    html+=`</div></div>`;
   });
-  container.innerHTML = html;
+  container.innerHTML=html;
 }
 
-function renderACWR() {
-  const acwr = calcACWR();
-  const latest = [...acwr].reverse().find(d=>d.ratio!==null);
+// ════════════ LIVE STATUS TAB ════════════
+function renderStatus(){
+  const sessions=allSessions();
+  const active=sessions.filter(s=>s.type!=="rest");
+  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
+  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+  const skip=sessions.filter(s=>LOGS[s.key]?.status==="skipped").length;
+  const totalActive=active.length;
+  const completePct=totalActive?Math.round((done+mod)/totalActive*100):0;
 
-  // ACWR card
-  const card = document.getElementById("acwrCard");
-  if (latest) {
-    const r = latest.ratio;
-    const col = acwrColor(r);
-    const status = r<0.8?"Undertraining":r<1.3?"Optimal training zone":r<1.5?"Caution — elevated load":"High injury risk";
-    const desc = r<0.8?"Your acute load is low. Safe to increase volume gradually.":
-                 r<1.3?"You're in the sweet spot. Keep doing what you're doing.":
-                 r<1.5?"Elevated ratio. Monitor fatigue and don't add extra sessions.":
-                 "Load spike. Consider a recovery session or rest day.";
-    card.innerHTML = `<div class="acwr-flex">
-      <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:4px">Current ACWR</div>
-        <div class="acwr-value" style="color:${col}">${r.toFixed(2)}</div></div>
-      <div><div class="acwr-status" style="color:${col}">${status}</div><div class="acwr-desc">${desc}</div></div>
+  const acwr=calcACWR();
+  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
+  const acwrVal=latest?.ratio;
+  const acwrCol=acwrColor(acwrVal||null);
+
+  // Total minutes
+  let totalPrescribed=0,totalActual=0;
+  for(let w=1;w<=12;w++){totalPrescribed+=weekPrescribedMin(w);totalActual+=weekActualMin(w);}
+  const minPct=totalPrescribed?Math.round(totalActual/totalPrescribed*100):0;
+
+  // Current week (first week with incomplete sessions)
+  let currentWeek=1;
+  for(let w=1;w<=12;w++){
+    const wSessions=sessions.filter(s=>s.weekNum===w&&s.type!=="rest");
+    const anyLogged=wSessions.some(s=>LOGS[s.key]?.status);
+    if(anyLogged){currentWeek=w;}
+  }
+
+  // Knee status
+  const allKneeVals=Object.values(KNEE).filter(v=>v>0);
+  const recentKnee=allKneeVals.slice(-7);
+  const peakKnee=recentKnee.length?Math.max(...recentKnee):null;
+  const avgKnee=recentKnee.length?(recentKnee.reduce((a,b)=>a+b,0)/recentKnee.length).toFixed(1):null;
+
+  // Upcoming sessions (not logged, in current week)
+  const upcoming=sessions.filter(s=>s.weekNum===currentWeek&&s.type!=="rest"&&!LOGS[s.key]?.status).slice(0,3);
+
+  // Days to race
+  const raceDate=new Date("2026-09-12");
+  const today=new Date();
+  const daysToRace=Math.max(0,Math.ceil((raceDate-today)/(1000*60*60*24)));
+
+  let html=`
+  <div style="margin-bottom:8px">
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:14px">Live Status · Week ${currentWeek} of 12</div>
+  </div>
+
+  <!-- HERO METRICS -->
+  <div class="report-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="report-card highlight">
+      <div class="rc-label">Days to Race</div>
+      <div class="rc-value" style="color:var(--fire)">${daysToRace}</div>
+      <div class="rc-sub">12 Sep 2026</div>
+    </div>
+    <div class="report-card">
+      <div class="rc-label">Week</div>
+      <div class="rc-value" style="color:var(--dust)">${currentWeek}<span style="font-size:18px;color:var(--subtle)">/12</span></div>
+      <div class="rc-sub">Current week</div>
+    </div>
+    <div class="report-card">
+      <div class="rc-label">Plan Completion</div>
+      <div class="rc-value" style="color:${completePct>75?'var(--canopy)':completePct>40?'#D4A020':'var(--dust)'}">${completePct}%</div>
+      <div class="rc-sub">${done+mod} of ${totalActive} sessions</div>
+    </div>
+    <div class="report-card">
+      <div class="rc-label">ACWR</div>
+      <div class="rc-value" style="color:${acwrCol}">${acwrVal?acwrVal.toFixed(2):"—"}</div>
+      <div class="rc-sub">${acwrVal?acwrVal<0.8?"Undertraining":acwrVal<1.3?"Optimal":acwrVal<1.5?"Caution":"High risk":"No data yet"}</div>
+    </div>
+  </div>
+
+  <!-- MINUTES + KNEE -->
+  <div class="report-grid">
+    <div class="report-card">
+      <div class="rc-label">Minutes on Feet</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+        <div class="rc-value" style="color:var(--dust)">${totalActual}</div>
+        <div style="font-size:14px;color:var(--subtle)">/ ${totalPrescribed} min prescribed</div>
+      </div>
+      <div class="rc-sub">${minPct}% of prescribed volume completed</div>
+      <div class="rc-bar-wrap">
+        <div class="rc-bar-track"><div class="rc-bar-fill" style="width:${Math.min(100,minPct)}%;background:${minPct>=90?'var(--canopy)':minPct>=70?'#D4A020':'var(--hard)'}"></div></div>
+      </div>
+    </div>
+    <div class="report-card">
+      <div class="rc-label">Knee Status (last 7 days)</div>
+      <div class="rc-value" style="color:${kneeColor(peakKnee)}">${peakKnee!==null?peakKnee:"—"}</div>
+      <div class="rc-sub">${peakKnee!==null?kneeLabel(peakKnee):"No knee data logged yet"}</div>
+      ${avgKnee?`<div style="font-size:12px;color:var(--subtle);margin-top:4px">7-day average: ${avgKnee}/10</div>`:""}
+    </div>
+  </div>
+
+  <!-- SESSION BREAKDOWN -->
+  <div class="report-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="report-card">
+      <div class="rc-label">Completed</div>
+      <div class="rc-value" style="color:var(--canopy)">${done}</div>
+      <div class="rc-sub">Sessions done as prescribed</div>
+    </div>
+    <div class="report-card">
+      <div class="rc-label">Modified</div>
+      <div class="rc-value" style="color:#5A8ABB">${mod}</div>
+      <div class="rc-sub">Substituted or adjusted</div>
+    </div>
+    <div class="report-card">
+      <div class="rc-label">Skipped</div>
+      <div class="rc-value" style="color:var(--hard)">${skip}</div>
+      <div class="rc-sub">Sessions missed</div>
+    </div>
+  </div>
+
+  <!-- UPCOMING -->
+  ${upcoming.length?`
+  <div class="dark-card">
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:12px">Coming up — Week ${currentWeek}</div>
+    ${upcoming.map(s=>`
+      <div style="display:flex;align-items:start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:10px;height:10px;border-radius:50%;background:${TYPE_COLOR[s.type]};margin-top:4px;flex-shrink:0"></div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--subtle);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">${s.day}</div>
+          <div style="font-size:13px;color:var(--dust)">${s.s}</div>
+        </div>
+      </div>`).join("")}
+  </div>`:""}
+
+  <!-- LOAD ALERTS -->
+  ${acwrVal&&acwrVal>=1.3?`
+  <div style="background:#2A1A10;border:1px solid #5A3020;border-radius:10px;padding:16px;margin-bottom:16px;border-left:4px solid var(--fire)">
+    <div style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--fire);margin-bottom:6px">⚠ Load Alert</div>
+    <div style="font-size:13px;color:var(--stone)">Your ACWR is ${acwrVal.toFixed(2)} — ${acwrVal<1.5?"above the caution threshold. Monitor fatigue and avoid adding extra sessions.":"in the high-risk zone. Consider a recovery day and reduce tomorrow's session intensity."}</div>
+  </div>`:""}
+  ${peakKnee&&peakKnee>=7?`
+  <div style="background:#2A1A1A;border:1px solid #5A2020;border-radius:10px;padding:16px;margin-bottom:16px;border-left:4px solid var(--hard)">
+    <div style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--hard);margin-bottom:6px">🦵 Knee Alert</div>
+    <div style="font-size:13px;color:var(--stone)">Peak knee pain of ${peakKnee}/10 recorded this week. Review your load and consider dropping to Phase 1 strength work only. Physio check-in recommended.</div>
+  </div>`:""}`;
+
+  document.getElementById("statusContent").innerHTML=html;
+}
+
+// ════════════ WEEKLY REPORT ════════════
+function renderWeekly(){
+  const sessions=allSessions();
+  let html=`<div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:16px">Weekly Report — All Weeks</div>`;
+
+  for(let w=1;w<=12;w++){
+    const wSessions=sessions.filter(s=>s.weekNum===w&&s.type!=="rest");
+    const wDone=wSessions.filter(s=>LOGS[s.key]?.status==="done").length;
+    const wMod=wSessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+    const wSkip=wSessions.filter(s=>LOGS[s.key]?.status==="skipped").length;
+    const hasData=wDone+wMod+wSkip>0;
+    const prescribed=weekPrescribedMin(w);
+    const actual=weekActualMin(w);
+    const minPct=prescribed?Math.round(actual/prescribed*100):0;
+    const load=weeklyLoad(w);
+    const kneePeak=weekKneePeak(w);
+    const acwrData=calcACWR();
+    const lastSessionOfWeek=acwrData.filter(d=>d.weekNum===w).pop();
+    const weekACWR=lastSessionOfWeek?.ratio;
+    // Avg RPE
+    const rpeVals=wSessions.filter(s=>LOGS[s.key]?.rpe>0).map(s=>LOGS[s.key].rpe);
+    const avgRpe=rpeVals.length?(rpeVals.reduce((a,b)=>a+b,0)/rpeVals.length).toFixed(1):"—";
+
+    const statusBadge=!hasData?`<span class="status-badge" style="background:var(--dark);color:var(--subtle);border:1px solid var(--border)">Pending</span>`:
+      wSkip>2?`<span class="status-badge badge-red">Disrupted</span>`:
+      minPct>=90?`<span class="status-badge badge-green">On track</span>`:
+      minPct>=60?`<span class="status-badge badge-amber">Partial</span>`:
+      `<span class="status-badge badge-red">Low volume</span>`;
+
+    html+=`<div class="dark-card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:14px">
+        <div>
+          <div style="font-size:16px;font-weight:500;margin-bottom:2px">Week ${w}</div>
+          <div style="font-size:12px;color:var(--subtle)">${PHASES.flatMap(p=>p.weeks).find(wk=>wk.week===w)?.sub||""}</div>
+        </div>
+        ${statusBadge}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Minutes</div>
+          <div style="font-size:22px;font-weight:300;color:${minPct>=90?'var(--canopy)':minPct>=70?'#D4A020':'var(--dust)'}">${actual}<span style="font-size:13px;color:var(--subtle)"> / ${prescribed}</span></div>
+          <div class="rc-bar-track" style="margin-top:6px"><div class="rc-bar-fill" style="width:${Math.min(100,minPct)}%;background:${minPct>=90?'var(--canopy)':minPct>=70?'#D4A020':'var(--hard)'}"></div></div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Sessions</div>
+          <div style="font-size:22px;font-weight:300;color:var(--dust)">${wDone+wMod}<span style="font-size:13px;color:var(--subtle)"> / ${wSessions.length}</span></div>
+          <div style="font-size:12px;color:var(--subtle);margin-top:2px">${wSkip>0?`${wSkip} skipped`:wDone+wMod===wSessions.length&&hasData?"All done":""}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Training Load</div>
+          <div style="font-size:22px;font-weight:300;color:var(--dust)">${load>0?load.toLocaleString():"—"}</div>
+          <div style="font-size:12px;color:var(--subtle);margin-top:2px">Avg RPE ${avgRpe}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        ${weekACWR?`<div style="font-size:12px;color:${acwrColor(weekACWR)}">ACWR ${weekACWR.toFixed(2)}</div>`:""}
+        ${kneePeak!==null?`<div style="font-size:12px;color:${kneeColor(kneePeak)}">🦵 Peak knee pain: ${kneePeak}/10</div>`:""}
+        ${wMod>0?`<div style="font-size:12px;color:#5A8ABB">${wMod} modified</div>`:""}
+      </div>
     </div>`;
-  } else {
-    card.innerHTML = `<div style="color:var(--subtle);font-size:13px">Log RPE on your sessions to see your ACWR.</div>`;
   }
+  document.getElementById("weeklyContent").innerHTML=html;
+}
 
-  // Canvas chart
-  const canvas = document.getElementById("acwrCanvas");
-  const ctx = canvas.getContext("2d");
-  const W=820,H=200,pl=44,pr=16,pt=16,pb=28;
-  const cw=W-pl-pr,ch=H-pt-pb;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle="#111110"; ctx.fillRect(0,0,W,H);
+// ════════════ MONTHLY REPORT ════════════
+function renderMonthly(){
+  // Group weeks into months: Month 1=W1-4, Month 2=W5-8, Month 3=W9-12
+  const months=[
+    {label:"Month 1",subtitle:"Jun–Jul · Phase 1: Rebuild",weeks:[1,2,3,4],phase:"Rebuild the Engine"},
+    {label:"Month 2",subtitle:"Jul–Aug · Phase 2: Build",weeks:[5,6,7,8],phase:"Build the Base"},
+    {label:"Month 3",subtitle:"Aug–Sep · Phase 2–3: Sharpen",weeks:[9,10,11,12],phase:"Sharpen & Taper"},
+  ];
+  const sessions=allSessions();
+  let html=`<div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:16px">Monthly Report</div>`;
 
-  const ratios = acwr.map(d=>d.ratio).filter(r=>r!==null);
-  if (ratios.length<2) {
-    ctx.fillStyle="#6B6862";ctx.font="13px system-ui";ctx.textAlign="center";
-    ctx.fillText("Log at least 2 weeks of RPE data to see ACWR chart",W/2,H/2);
-    return;
-  }
-  const maxR = Math.max(2,...ratios)*1.1;
-  const toY = r=>pt+ch-(r/maxR)*ch;
-  const toX = i=>pl+(i/(acwr.length-1))*cw;
+  months.forEach(month=>{
+    const mSessions=sessions.filter(s=>month.weeks.includes(s.weekNum)&&s.type!=="rest");
+    const mDone=mSessions.filter(s=>LOGS[s.key]?.status==="done").length;
+    const mMod=mSessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+    const mSkip=mSessions.filter(s=>LOGS[s.key]?.status==="skipped").length;
+    const hasData=mDone+mMod+mSkip>0;
+    let mPrescribed=0,mActual=0,mLoad=0;
+    month.weeks.forEach(w=>{mPrescribed+=weekPrescribedMin(w);mActual+=weekActualMin(w);mLoad+=weeklyLoad(w);});
+    const minPct=mPrescribed?Math.round(mActual/mPrescribed*100):0;
+    const rpeVals=mSessions.filter(s=>LOGS[s.key]?.rpe>0).map(s=>LOGS[s.key].rpe);
+    const avgRpe=rpeVals.length?(rpeVals.reduce((a,b)=>a+b,0)/rpeVals.length).toFixed(1):"—";
+    const kneeVals=month.weeks.flatMap(w=>{
+      const keys=Object.keys(KNEE).filter(k=>k.startsWith(`w${w}-`));
+      return keys.map(k=>KNEE[k]||0).filter(v=>v>0);
+    });
+    const peakKnee=kneeVals.length?Math.max(...kneeVals):null;
+    const avgKnee=kneeVals.length?(kneeVals.reduce((a,b)=>a+b,0)/kneeVals.length).toFixed(1):null;
 
-  [[0,0.8,"#1A2A1A"],[0.8,1.3,"#1A2E1A"],[1.3,1.5,"#2A2010"],[1.5,2.5,"#2A1010"]].forEach(([lo,hi,col])=>{
-    ctx.fillStyle=col;
-    const y1=toY(Math.min(hi,maxR)),y2=toY(lo);
-    ctx.fillRect(pl,y1,cw,y2-y1);
+    // Per-week breakdown
+    const weekBars=month.weeks.map(w=>{
+      const wp=weekPrescribedMin(w);
+      const wa=weekActualMin(w);
+      const pct=wp?Math.min(100,Math.round(wa/wp*100)):0;
+      const col=pct>=90?'var(--canopy)':pct>=70?'#D4A020':'var(--hard)';
+      return`<div style="flex:1;text-align:center">
+        <div style="height:60px;background:var(--asphalt);border-radius:4px;position:relative;overflow:hidden;margin-bottom:4px">
+          <div style="position:absolute;bottom:0;left:0;right:0;height:${pct}%;background:${col};border-radius:4px 4px 0 0;transition:height 0.4s"></div>
+        </div>
+        <div style="font-size:10px;color:var(--subtle)">W${w}</div>
+        <div style="font-size:11px;color:${col};font-weight:600">${pct}%</div>
+      </div>`;
+    }).join("");
+
+    html+=`<div class="dark-card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:500;margin-bottom:2px">${month.label}</div>
+          <div style="font-size:12px;color:var(--subtle)">${month.subtitle}</div>
+        </div>
+        ${!hasData?`<span class="status-badge" style="background:var(--dark);color:var(--subtle);border:1px solid var(--border)">Upcoming</span>`:
+          minPct>=85?`<span class="status-badge badge-green">Strong month</span>`:
+          minPct>=65?`<span class="status-badge badge-amber">Solid</span>`:
+          hasData?`<span class="status-badge badge-red">Disrupted</span>`:""}
+      </div>
+
+      <!-- Big metrics -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Volume</div>
+          <div style="font-size:24px;font-weight:300;color:var(--dust)">${mActual}<span style="font-size:13px;color:var(--subtle)">/${mPrescribed}m</span></div>
+          <div style="font-size:12px;color:${minPct>=85?'var(--canopy)':'#D4A020'}">${minPct}% compliance</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Sessions</div>
+          <div style="font-size:24px;font-weight:300;color:var(--dust)">${mDone+mMod}<span style="font-size:13px;color:var(--subtle)">/${mSessions.length}</span></div>
+          <div style="font-size:12px;color:var(--subtle)">${mSkip} skipped</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Load Total</div>
+          <div style="font-size:24px;font-weight:300;color:var(--dust)">${mLoad>0?mLoad.toLocaleString():"—"}</div>
+          <div style="font-size:12px;color:var(--subtle)">Avg RPE ${avgRpe}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Knee Peak</div>
+          <div style="font-size:24px;font-weight:300;color:${kneeColor(peakKnee)}">${peakKnee!==null?peakKnee:"—"}</div>
+          <div style="font-size:12px;color:var(--subtle)">${avgKnee?`Avg ${avgKnee}/10`:""}</div>
+        </div>
+      </div>
+
+      <!-- Weekly bars -->
+      <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:10px">Weekly volume compliance</div>
+      <div style="display:flex;gap:8px">${weekBars}</div>
+    </div>`;
   });
 
+  // Overall plan summary
+  let totalP=0,totalA=0,totalL=0;
+  for(let w=1;w<=12;w++){totalP+=weekPrescribedMin(w);totalA+=weekActualMin(w);totalL+=weeklyLoad(w);}
+  const overallPct=totalP?Math.round(totalA/totalP*100):0;
+  html+=`<div class="dark-card" style="border-color:var(--fire)">
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--fire);margin-bottom:12px">Overall Plan Summary</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div>
+        <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Total volume</div>
+        <div style="font-size:28px;font-weight:300;color:var(--dust)">${totalA}<span style="font-size:14px;color:var(--subtle)"> / ${totalP} min</span></div>
+        <div style="font-size:13px;color:${overallPct>=90?'var(--canopy)':'#D4A020'}">${overallPct}% of plan completed</div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Total load</div>
+        <div style="font-size:28px;font-weight:300;color:var(--dust)">${totalL>0?totalL.toLocaleString():"—"}</div>
+        <div style="font-size:13px;color:var(--subtle)">Arbitrary Units</div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:4px">Race day</div>
+        <div style="font-size:28px;font-weight:300;color:var(--fire)">12 Sep</div>
+        <div style="font-size:13px;color:var(--subtle)">Surf Coast Century 50km</div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById("monthlyContent").innerHTML=html;
+}
+
+// ════════════ KNEE TRACKER ════════════
+function renderKnee(){
+  const sessions=allSessions();
+  let html=`
+  <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:6px">Knee Pain Tracker</div>
+  <p style="font-size:13px;color:var(--stone);margin-bottom:20px">Log your worst knee pain for each training day (0 = none, 10 = worst imaginable). This is tracked per training day, not calendar day.</p>`;
+
+  PHASES.forEach(ph=>{
+    html+=`<div style="font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:10px;margin-top:20px">${ph.label} — ${ph.title}</div>`;
+    ph.weeks.forEach(wk=>{
+      html+=`<div style="margin-bottom:20px">
+        <div style="font-size:13px;font-weight:500;color:var(--stone);margin-bottom:10px">Week ${wk.week} <span style="font-weight:300;color:var(--subtle)">${wk.sub}</span></div>
+        <div class="knee-day-grid">`;
+      wk.days.forEach((d,di)=>{
+        const key=getKneeDateKey(wk.week,di);
+        const val=KNEE[key]||0;
+        const col=kneeColor(val);
+        const sessionStatus=LOGS[getWeekDayKey(wk.week,di)]?.status;
+        const trained=sessionStatus==="done"||sessionStatus==="modified";
+        const skipped=sessionStatus==="skipped";
+        html+=`<div class="knee-day-card" style="${val>0?`border-color:${col}`:""}">
+          <div class="knee-day-label" style="color:${d.type==='rest'?'var(--subtle)':col||'var(--subtle)'}">${d.day}</div>
+          <div style="font-size:10px;color:var(--subtle);margin-bottom:6px">${d.type==="rest"?"Rest":(trained?"✓ Done":skipped?"Skipped":"Pending")}</div>
+          ${d.type!=="rest"?`
+          <div style="font-size:20px;font-weight:300;color:${col||'var(--subtle)'};margin-bottom:6px">${val||"—"}</div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            ${[0,1,2,3,4,5,6,7,8,9,10].filter(n=>n===0||n===3||n===5||n===7||n===10).map(n=>`
+              <button class="knee-btn${val===n&&n===0?" active-ok":val===n&&n<=3?" active-ok":val===n&&n<=6?" active-warn":val===n?" active-bad":""}"
+                onclick="setKneePain('${key}',${n})"
+                style="font-size:10px;padding:3px">
+                ${n===0?"None":n===3?"Mild":n===5?"Mod":n===7?"Sig":n===10?"Max":""}(${n})
+              </button>`).join("")}
+            <input type="number" min="0" max="10" value="${val||""}" placeholder="0–10"
+              onchange="setKneePain('${key}',parseInt(this.value)||0)"
+              style="width:100%;padding:3px 4px;border-radius:4px;border:1px solid var(--border);background:var(--asphalt);color:var(--dust);font-size:11px;font-family:inherit;outline:none;text-align:center;margin-top:3px">
+          </div>`:`<div style="font-size:11px;color:var(--subtle)">—</div>`}
+        </div>`;
+      });
+      html+=`</div></div>`;
+    });
+  });
+
+  // Knee trend
+  const allKneeKeys=Object.keys(KNEE).filter(k=>KNEE[k]>0).sort();
+  if(allKneeKeys.length>0){
+    html+=`<div class="dark-card" style="margin-top:20px">
+      <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:12px">Knee pain trend</div>
+      <canvas id="kneeCanvas" width="860" height="150"></canvas>
+    </div>`;
+  }
+
+  document.getElementById("kneeContent").innerHTML=html;
+
+  // Draw knee canvas
+  if(allKneeKeys.length>0){
+    setTimeout(()=>{
+      const canvas=document.getElementById("kneeCanvas");
+      if(!canvas)return;
+      const ctx=canvas.getContext("2d");
+      const W=860,H=150,pl=36,pr=16,pt=12,pb=24;
+      const cw=W-pl-pr,ch=H-pt-pb;
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle="#111110";ctx.fillRect(0,0,W,H);
+      const vals=allKneeKeys.map(k=>KNEE[k]);
+      const toY=v=>pt+ch-(v/10)*ch;
+      const toX=i=>pl+(i/(Math.max(1,vals.length-1)))*cw;
+      // Zone backgrounds
+      [[0,3,"#1A2E1A"],[3,6,"#2A2A10"],[6,10,"#2A1010"]].forEach(([lo,hi,col])=>{
+        ctx.fillStyle=col;
+        ctx.fillRect(pl,toY(hi),cw,toY(lo)-toY(hi));
+      });
+      [3,6,10].forEach(v=>{
+        ctx.strokeStyle="#ffffff18";ctx.lineWidth=1;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.moveTo(pl,toY(v));ctx.lineTo(pl+cw,toY(v));ctx.stroke();
+        ctx.fillStyle="#6B6862";ctx.font="10px system-ui";ctx.textAlign="right";
+        ctx.fillText(v,pl-4,toY(v)+3);
+      });
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      vals.forEach((v,i)=>{i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v));});
+      ctx.strokeStyle="#D95F2B";ctx.lineWidth=2;ctx.stroke();
+      vals.forEach((v,i)=>{
+        ctx.beginPath();ctx.arc(toX(i),toY(v),4,0,Math.PI*2);
+        ctx.fillStyle=v<=3?"#4A7C59":v<=6?"#D4A020":"#C43020";ctx.fill();
+      });
+    },50);
+  }
+}
+
+// ════════════ ACWR TAB ════════════
+function renderACWR(){
+  const acwr=calcACWR();
+  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
+  const card=document.getElementById("acwrCard");
+  if(latest){
+    const r=latest.ratio,col=acwrColor(r);
+    const status=r<0.8?"Undertraining":r<1.3?"Optimal training zone":r<1.5?"Caution — elevated load":"High injury risk";
+    const desc=r<0.8?"Your acute load is low. Safe to increase volume gradually.":r<1.3?"You're in the sweet spot. Keep doing what you're doing.":r<1.5?"Elevated ratio. Monitor fatigue and don't add extra sessions.":"Load spike. Consider a recovery session or rest day.";
+    card.innerHTML=`<div style="display:flex;gap:24px;align-items:center">
+      <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:4px">Current ACWR</div>
+        <div style="font-size:48px;font-weight:300;color:${col};line-height:1">${r.toFixed(2)}</div></div>
+      <div><div style="font-size:14px;font-weight:500;color:${col};margin-bottom:4px">${status}</div><div style="font-size:13px;color:var(--stone)">${desc}</div></div>
+    </div>`;
+  }else{
+    card.innerHTML=`<div style="color:var(--subtle);font-size:13px">Log RPE on your sessions to see your ACWR.</div>`;
+  }
+
+  const canvas=document.getElementById("acwrCanvas");
+  const ctx=canvas.getContext("2d");
+  const W=860,H=200,pl=44,pr=16,pt=16,pb=28;
+  const cw=W-pl-pr,ch=H-pt-pb;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle="#111110";ctx.fillRect(0,0,W,H);
+  const ratios=acwr.map(d=>d.ratio).filter(r=>r!==null);
+  if(ratios.length<2){
+    ctx.fillStyle="#6B6862";ctx.font="13px system-ui";ctx.textAlign="center";
+    ctx.fillText("Log at least 2 weeks of RPE data to see ACWR chart",W/2,H/2);return;
+  }
+  const maxR=Math.max(2,...ratios)*1.1;
+  const toY=r=>pt+ch-(r/maxR)*ch,toX=i=>pl+(i/(acwr.length-1))*cw;
+  [[0,0.8,"#1A2A1A"],[0.8,1.3,"#1A2E1A"],[1.3,1.5,"#2A2010"],[1.5,2.5,"#2A1010"]].forEach(([lo,hi,col])=>{
+    ctx.fillStyle=col;const y1=toY(Math.min(hi,maxR)),y2=toY(lo);ctx.fillRect(pl,y1,cw,y2-y1);
+  });
   [0.8,1.0,1.3,1.5].forEach(r=>{
     if(r>maxR)return;
     ctx.strokeStyle="#ffffff18";ctx.lineWidth=1;ctx.setLineDash([4,4]);
     ctx.beginPath();ctx.moveTo(pl,toY(r));ctx.lineTo(pl+cw,toY(r));ctx.stroke();
-    ctx.fillStyle="#6B6862";ctx.font="10px system-ui";ctx.textAlign="right";
-    ctx.fillText(r.toFixed(1),pl-4,toY(r)+3);
+    ctx.fillStyle="#6B6862";ctx.font="10px system-ui";ctx.textAlign="right";ctx.fillText(r.toFixed(1),pl-4,toY(r)+3);
   });
   ctx.setLineDash([]);
-
-  const weeks=[...new Set(acwr.map(d=>d.weekNum))];
-  weeks.forEach(wk=>{
+  [...new Set(acwr.map(d=>d.weekNum))].forEach(wk=>{
     const first=acwr.findIndex(d=>d.weekNum===wk);
-    ctx.fillStyle="#6B6862";ctx.font="9px system-ui";ctx.textAlign="center";
-    ctx.fillText("W"+wk,toX(first),H-4);
+    ctx.fillStyle="#6B6862";ctx.font="9px system-ui";ctx.textAlign="center";ctx.fillText("W"+wk,toX(first),H-4);
   });
-
   ctx.beginPath();let started=false;
-  acwr.forEach((d,i)=>{
-    if(d.ratio===null)return;
-    const x=toX(i),y=toY(d.ratio);
-    if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
-  });
+  acwr.forEach((d,i)=>{if(d.ratio===null)return;const x=toX(i),y=toY(d.ratio);if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);});
   ctx.strokeStyle="#D95F2B";ctx.lineWidth=2;ctx.stroke();
-
   acwr.forEach((d,i)=>{
     if(d.ratio===null)return;
-    ctx.beginPath();ctx.arc(toX(i),toY(d.ratio),4,0,Math.PI*2);
-    ctx.fillStyle=acwrColor(d.ratio);ctx.fill();
+    ctx.beginPath();ctx.arc(toX(i),toY(d.ratio),4,0,Math.PI*2);ctx.fillStyle=acwrColor(d.ratio);ctx.fill();
   });
 
   // Week table
-  const weeks12 = Array.from({length:12},(_,i)=>i+1);
-  const maxLoad = Math.max(...weeks12.map(w=>weeklyLoad(w)),1);
-  const sessions = allSessions();
-  let tableHtml = "";
-  weeks12.forEach(wk=>{
-    const wSessions = sessions.filter(s=>s.weekNum===wk&&s.type!=="rest");
-    const logged = wSessions.filter(s=>LOGS[s.key]?.rpe>0);
-    const load = weeklyLoad(wk);
-    const avgRpe = logged.length>0?(logged.reduce((a,s)=>a+(LOGS[s.key]?.rpe||0),0)/logged.length).toFixed(1):"–";
-    const barW = load>0?Math.max(4,(load/maxLoad)*120):0;
-    tableHtml += `<div class="week-table-row">
-      <div>Week ${wk}</div>
-      <div class="load-bar-wrap">
-        ${load>0?`<div class="load-bar" style="width:${barW}px"></div><span style="color:var(--fire)">${load.toLocaleString()}</span>`:"<span style='color:var(--subtle)'>–</span>"}
-      </div>
-      <div style="color:var(--stone)">${logged.length}/${wSessions.length}</div>
+  const sessions=allSessions();
+  const maxLoad=Math.max(...Array.from({length:12},(_,i)=>weeklyLoad(i+1)),1);
+  document.getElementById("weekTableBody").innerHTML=Array.from({length:12},(_,i)=>{
+    const w=i+1;
+    const wS=sessions.filter(s=>s.weekNum===w&&s.type!=="rest");
+    const logged=wS.filter(s=>LOGS[s.key]?.rpe>0);
+    const load=weeklyLoad(w);
+    const avgRpe=logged.length>0?(logged.reduce((a,s)=>a+(LOGS[s.key]?.rpe||0),0)/logged.length).toFixed(1):"—";
+    const barW=load>0?Math.max(4,(load/maxLoad)*100):0;
+    const p=weekPrescribedMin(w),a=weekActualMin(w);
+    return`<div class="wt-row">
+      <div>Week ${w}</div>
+      <div class="load-bar-wrap">${load>0?`<div class="load-bar" style="width:${barW}px"></div><span style="color:var(--fire)">${load.toLocaleString()}</span>`:"<span style='color:var(--subtle)'>—</span>"}</div>
+      <div style="color:var(--stone)">${logged.length}/${wS.length}</div>
       <div style="color:var(--stone)">${avgRpe}</div>
+      <div style="color:var(--subtle)">${p} min</div>
+      <div style="color:${a>=p*0.9?'var(--canopy)':a>0?'#D4A020':'var(--subtle)'}">${a>0?a+" min":"—"}</div>
     </div>`;
-  });
-  document.getElementById("weekTableBody").innerHTML = tableHtml;
+  }).join("");
 }
 
-function renderLog() {
-  const sessions = allSessions().filter(s=>s.type!=="rest"&&LOGS[s.key]?.status);
-  const el = document.getElementById("logBody");
-  if (!sessions.length) {
-    el.innerHTML = `<div style="padding:32px;text-align:center;color:var(--subtle);font-size:13px">No sessions logged yet. Check off sessions in the Training Plan tab.</div>`;
-    return;
-  }
-  el.innerHTML = sessions.map(s=>{
+// ════════════ LOG TAB ════════════
+function renderLog(){
+  const sessions=allSessions().filter(s=>s.type!=="rest"&&LOGS[s.key]?.status);
+  const el=document.getElementById("logBody");
+  if(!sessions.length){el.innerHTML=`<div style="padding:32px;text-align:center;color:var(--subtle);font-size:13px">No sessions logged yet.</div>`;return;}
+  el.innerHTML=sessions.map(s=>{
     const log=LOGS[s.key];
     const col=log.status==="done"?"#4A7C59":log.status==="skipped"?"#C43020":"#5A8ABB";
     const load=log.rpe?log.rpe*(log.actualDuration!==undefined?log.actualDuration:s.dur):0;
-    return `<div class="log-row">
-      <div class="log-week">W${s.weekNum} ${s.day}</div>
-      <div class="log-status" style="color:${col}">${log.status}</div>
+    return`<div class="log-row">
+      <div style="font-size:11px;color:var(--subtle);font-weight:600">W${s.weekNum} ${s.day}</div>
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:${col}">${log.status}</div>
       <div>
         <div style="font-size:13px;color:var(--dust);line-height:1.4">${s.s}</div>
-        ${log.note?`<div class="log-note">Note: ${log.note}</div>`:""}
+        ${log.note?`<div style="font-size:12px;color:#5A8ABB;margin-top:3px">Note: ${log.note}</div>`:""}
       </div>
-      <div class="log-load">
-        ${log.rpe?`<div class="log-rpe">RPE ${log.rpe}</div>`:""}
-        ${load?`<div class="log-au">${load.toLocaleString()} AU</div>`:""}
+      <div style="text-align:right">
+        ${log.rpe?`<div style="font-size:13px;font-weight:500">RPE ${log.rpe}</div>`:""}
+        ${load?`<div style="font-size:11px;color:var(--subtle)">${load.toLocaleString()} AU</div>`:""}
       </div>
     </div>`;
   }).join("");
 }
 
-// ════════════════════════════════════════════════
-// EVENT HANDLERS
-// ════════════════════════════════════════════════
-function showTab(name, el) {
+// ════════════ EVENT HANDLERS ════════════
+function showTab(name,el){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById("tab-"+name).classList.add("active");
   el.classList.add("active");
 }
-
-function togglePhase(id) {
-  expandedPhases[id] = !expandedPhases[id];
-  render();
+function togglePhase(id){expandedPhases[id]=!expandedPhases[id];render();}
+function toggleSession(key){expandedSessions[key]=!expandedSessions[key];render();}
+function markStatus(key,newStatus){
+  const current=LOGS[key]?.status;
+  updateLog(key,{status:current===newStatus?"pending":newStatus,modified:newStatus==="done"?false:(LOGS[key]?.modified)});
 }
-
-function toggleSession(key) {
-  expandedSessions[key] = !expandedSessions[key];
-  render();
+function setRPE(key,val){updateLog(key,{rpe:LOGS[key]?.rpe===val?0:val});}
+function setDuration(key,val){updateLog(key,{actualDuration:parseInt(val)||0});}
+function setModified(key,checked){updateLog(key,{modified:checked,status:checked?"modified":(LOGS[key]?.status==="modified"?"pending":LOGS[key]?.status)});}
+function setNote(key,val){updateLog(key,{note:val});}
+function setKneePain(key,val){
+  KNEE[key]=val;
+  scheduleSave();
+  renderKnee();
+  renderStatus();
+  renderWeekly();
+  renderMonthly();
 }
-
-function markStatus(key, newStatus) {
-  const current = LOGS[key]?.status;
-  const status = current===newStatus ? "pending" : newStatus;
-  if (newStatus==="done") updateLog(key,{status, modified:false});
-  else if (newStatus==="skipped") updateLog(key,{status});
-  else updateLog(key,{status});
-}
-
-function setRPE(key, val) {
-  const current = LOGS[key]?.rpe;
-  updateLog(key, {rpe: current===val?0:val});
-}
-
-function setDuration(key, val) {
-  updateLog(key, {actualDuration: parseInt(val)||0});
-}
-
-function setModified(key, checked) {
-  updateLog(key, {modified:checked, status: checked?"modified":(LOGS[key]?.status==="modified"?"pending":LOGS[key]?.status)});
-}
-
-function setNote(key, val) {
-  updateLog(key, {note:val});
-}
-
-// ════════════════════════════════════════════════
-// START
-// ════════════════════════════════════════════════
 init();
 </script>
 </body>
