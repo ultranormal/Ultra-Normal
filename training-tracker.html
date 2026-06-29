@@ -532,36 +532,49 @@ function weekActualMin(wk){
 }
 
 function calcACWR(){
+  // Build a 7-days-per-week flat array indexed by day number (0-83)
+  // Each week has 7 days (Mon=0 through Sun=6), rest days = 0 load
   const sessions=allSessions().sort((a,b)=>a.weekNum!==b.weekNum?a.weekNum-b.weekNum:a.dayIdx-b.dayIdx);
-  const loads=sessions.map(s=>sessionLoad(s.key,s.dur));
 
-  // Find the last session index that has any load logged
-  // — don't calculate ACWR beyond what's been trained
-  let lastLoggedIdx=-1;
-  loads.forEach((l,i)=>{ if(l>0) lastLoggedIdx=i; });
+  // Map each session to its absolute day index (week-1)*7 + dayIdx
+  const dailyLoads=new Array(84).fill(0);
+  sessions.forEach(s=>{
+    const dayNum=(s.weekNum-1)*7+s.dayIdx;
+    dailyLoads[dayNum]=sessionLoad(s.key,s.dur);
+  });
 
-  const RAMP_SESSIONS=28;
-  return sessions.map((s,i)=>{
-    // For sessions beyond the last logged one, return null ratio
-    // so the chart doesn't show a misleading collapse
-    if(i>lastLoggedIdx) return{...s,acute:0,chronic:0,ratio:null,ramped:i<RAMP_SESSIONS};
+  // Find last day with any load
+  let lastLoadedDay=-1;
+  dailyLoads.forEach((l,i)=>{ if(l>0) lastLoadedDay=i; });
 
-    // Acute = sum of last 7 sessions of actual load
-    const acute=loads.slice(Math.max(0,i-6),i+1).reduce((a,b)=>a+b,0);
+  const RAMP_DAYS=28; // 4 weeks
 
-    // Ramped chronic (weeks 1-4): average of all load logged so far
-    // Standard chronic (week 5+): 28-session rolling average
+  return sessions.map(s=>{
+    const dayNum=(s.weekNum-1)*7+s.dayIdx;
+
+    // Don't plot beyond last trained day
+    if(dayNum>lastLoadedDay) return{...s,acute:0,chronic:0,ratio:null,ramped:dayNum<RAMP_DAYS};
+
+    // Acute = sum of last 7 calendar days
+    const acute=dailyLoads.slice(Math.max(0,dayNum-6),dayNum+1).reduce((a,b)=>a+b,0);
+
+    // Chronic:
+    // Weeks 1-4 (days 0-27): ramped — use seeded average
+    // The seeded average = (sum of all days so far) / days_elapsed
+    // but we seed it with the average daily load so far to avoid near-zero denominators
     let chronic;
-    if(i<RAMP_SESSIONS){
-      const soFar=loads.slice(0,i+1).filter(l=>l>0);
-      // Only calculate if we have at least 1 loaded session
-      if(soFar.length===0) return{...s,acute:0,chronic:0,ratio:null,ramped:true};
-      chronic=loads.slice(0,i+1).reduce((a,b)=>a+b,0)/Math.max(1,i+1);
+    if(dayNum<RAMP_DAYS){
+      const daysElapsed=dayNum+1;
+      const totalSoFar=dailyLoads.slice(0,dayNum+1).reduce((a,b)=>a+b,0);
+      // Seeded chronic: average daily load × 7 (to match acute scale)
+      const avgDaily=totalSoFar/daysElapsed;
+      chronic=avgDaily*7;
     }else{
-      chronic=loads.slice(i-27,i+1).reduce((a,b)=>a+b,0)/28;
+      // Standard: 28-day rolling sum / 4 (gives weekly average, ×7 for acute comparison)
+      chronic=dailyLoads.slice(dayNum-27,dayNum+1).reduce((a,b)=>a+b,0)/4;
     }
 
-    return{...s,acute,chronic,ratio:chronic>0?acute/chronic:null,ramped:i<RAMP_SESSIONS};
+    return{...s,acute,chronic,ratio:chronic>0?acute/chronic:null,ramped:dayNum<RAMP_DAYS};
   });
 }
 
