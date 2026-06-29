@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training · Ultra Normal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;background:#0E0E0C;color:#F5F2EC;-webkit-font-smoothing:antialiased;min-height:100vh}
+:root{
+  --asphalt:#1A1A18;--dust:#F5F2EC;--fire:#D95F2B;--canopy:#4A7C59;
+  --stone:#C8C4BA;--subtle:#6B6862;--border:#2A2A28;--dark:#0E0E0C;
+  --easy:#4A7C59;--mod:#8A6C20;--hard:#C43020;--long:#1A5A6E;--strength:#5A3A7A;
+}
+
+/* ── NAV ── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(14,14,12,0.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+}
+.nav-logo{font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase}
+.nav-logo span{color:var(--fire)}
+.nav-actions{display:flex;gap:8px;align-items:center}
+.sync-status{font-size:11px;color:var(--subtle);display:flex;align-items:center;gap:6px;margin-right:8px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--subtle)}
+.sync-dot.synced{background:var(--canopy)}
+.sync-dot.syncing{background:#D4A020;animation:pulse 1s infinite}
+.sync-dot.error{background:var(--hard)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.btn{
+  padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;
+  cursor:pointer;font-family:inherit;border:none;transition:opacity 0.15s;
+  display:flex;align-items:center;gap:6px;letter-spacing:0.02em;
+}
+.btn-fire{background:var(--fire);color:#fff}
+.btn-outline{background:transparent;color:var(--stone);border:1px solid var(--border)}
+.btn:hover{opacity:0.85}
+.btn-icon{font-size:14px}
+
+/* ── PAGE ── */
+.page{max-width:780px;margin:0 auto;padding:32px 20px 80px}
+
+/* ── HERO BLOCK ── */
+.hero-block{
+  background:var(--asphalt);border-radius:16px;overflow:hidden;
+  margin-bottom:16px;position:relative;
+}
+.hero-top{
+  padding:32px 32px 24px;
+  background:linear-gradient(135deg,#1A1A18 0%,#1E1410 100%);
+}
+.hero-eyebrow{
+  font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--fire);margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.hero-eyebrow::after{content:'';flex:1;height:1px;background:var(--fire);opacity:0.3}
+.hero-race{font-size:clamp(36px,6vw,64px);font-weight:700;letter-spacing:-0.03em;line-height:1;color:var(--dust);margin-bottom:6px}
+.hero-race span{color:var(--fire)}
+.hero-sub{font-size:14px;color:var(--stone);font-weight:300;margin-bottom:28px}
+.hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+.hero-metric{
+  background:var(--asphalt);padding:20px 16px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.hm-value{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-0.03em;line-height:1}
+.hm-label{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--subtle)}
+
+/* ── SECTION ── */
+.section{margin-bottom:16px}
+.section-card{background:var(--asphalt);border-radius:16px;overflow:hidden}
+.section-header{
+  padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;
+}
+.section-title{font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--subtle)}
+.section-body{padding:20px 24px 24px}
+
+/* ── WEEK SUMMARY ── */
+.week-summary{display:flex;flex-direction:column;gap:10px}
+.week-row{display:grid;grid-template-columns:48px 1fr 80px 60px;gap:12px;align-items:center}
+.week-label{font-size:13px;font-weight:500;color:var(--stone)}
+.week-bar-wrap{position:relative;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.week-bar-fill{height:100%;border-radius:3px;transition:width 0.6s}
+.week-pct{font-size:12px;color:var(--stone);text-align:right}
+.week-load{font-size:11px;color:var(--subtle);text-align:right}
+.week-current{background:#1E1C18;border-radius:8px;padding:8px 10px;margin:-2px -4px}
+
+/* ── ACWR CHART ── */
+canvas{display:block;width:100%;height:auto;border-radius:8px}
+
+/* ── SESSION LOG ── */
+.session-list{display:flex;flex-direction:column;gap:8px}
+.session-item{
+  display:grid;grid-template-columns:10px 1fr auto;gap:12px;
+  align-items:start;padding:12px 0;border-bottom:1px solid var(--border);
+}
+.session-item:last-child{border-bottom:none}
+.session-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.session-info{}
+.session-name{font-size:13px;color:var(--dust);line-height:1.4;margin-bottom:3px}
+.session-meta{font-size:11px;color:var(--subtle)}
+.session-rpe{
+  font-size:12px;font-weight:600;
+  background:var(--dark);border:1px solid var(--border);
+  padding:3px 8px;border-radius:4px;color:var(--stone);white-space:nowrap;
+}
+
+/* ── KNEE ── */
+.knee-grid{display:flex;gap:4px;flex-wrap:wrap}
+.knee-pip{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;
+}
+.knee-none{background:#1A2E1A;color:var(--canopy)}
+.knee-mild{background:#2A2A10;color:#D4A020}
+.knee-mod{background:#2A1E10;color:#D48020}
+.knee-sig{background:#2A1A1A;color:var(--hard)}
+.knee-empty{background:var(--border);color:var(--subtle)}
+
+/* ── BIG STAT CARDS ── */
+.big-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.big-stat{
+  background:var(--asphalt);border-radius:16px;padding:24px;
+  position:relative;overflow:hidden;
+}
+.big-stat::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--fire);
+}
+.big-stat.green::before{background:var(--canopy)}
+.big-stat.purple::before{background:var(--strength)}
+.big-stat.blue::before{background:var(--long)}
+.bs-value{font-size:52px;font-weight:700;letter-spacing:-0.04em;line-height:1;margin-bottom:4px}
+.bs-label{font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px}
+.bs-sub{font-size:12px;color:var(--stone)}
+
+/* ── PROGRESS RING ── */
+.progress-wrap{display:flex;align-items:center;gap:20px;padding:20px 24px}
+.ring-container{position:relative;width:100px;height:100px;flex-shrink:0}
+.ring-container svg{transform:rotate(-90deg)}
+.ring-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-pct{font-size:22px;font-weight:700;letter-spacing:-0.02em}
+.ring-of{font-size:10px;color:var(--subtle);margin-top:2px}
+.ring-stats{flex:1;display:flex;flex-direction:column;gap:10px}
+.ring-stat{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.ring-stat-label{color:var(--subtle)}
+.ring-stat-value{font-weight:500;color:var(--dust)}
+
+/* ── EXPORT MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--asphalt);border-radius:16px;padding:28px;
+  width:100%;max-width:400px;border:1px solid var(--border);
+}
+.modal-title{font-size:18px;font-weight:500;margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--subtle);margin-bottom:24px}
+.export-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.export-opt{
+  background:var(--dark);border:1px solid var(--border);border-radius:10px;
+  padding:16px;cursor:pointer;text-align:center;transition:border-color 0.15s;
+}
+.export-opt:hover{border-color:var(--fire)}
+.export-opt.selected{border-color:var(--fire);background:#1E1410}
+.export-opt-icon{font-size:28px;margin-bottom:8px}
+.export-opt-label{font-size:13px;font-weight:500;color:var(--dust);margin-bottom:2px}
+.export-opt-size{font-size:11px;color:var(--subtle)}
+.modal-actions{display:flex;gap:8px}
+.modal-actions .btn{flex:1;justify-content:center;padding:10px}
+
+/* ── SETUP ── */
+.setup-screen{max-width:480px;margin:80px auto;padding:0 20px;text-align:center}
+.setup-screen h2{font-size:32px;font-weight:700;letter-spacing:-0.02em;margin-bottom:12px}
+.setup-screen p{font-size:14px;color:var(--stone);line-height:1.7;margin-bottom:24px}
+.setup-input{
+  width:100%;padding:12px 16px;border-radius:10px;
+  border:1px solid var(--border);background:#1A1A18;
+  color:var(--dust);font-size:14px;font-family:inherit;outline:none;
+  margin-bottom:10px;text-align:left;
+}
+.setup-input:focus{border-color:var(--fire)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:560px){
+  .hero-metrics{grid-template-columns:repeat(2,1fr)}
+  .big-stats{grid-template-columns:1fr}
+  .week-row{grid-template-columns:40px 1fr 60px}
+  .week-load{display:none}
+}
+
+/* ── EXPORT CANVAS (hidden) ── */
+#exportCanvas{display:none}
+</style>
+</head>
+<body>
+
+<div id="setupScreen" style="display:none">
+  <nav class="nav">
+    <div class="nav-logo">ULTRA<span>NORMAL</span></div>
+  </nav>
+  <div class="setup-screen">
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--fire);margin-bottom:16px">Training Dashboard</div>
+    <h2>Connect to<br>your training data</h2>
+    <p>Paste your Apps Script URL to load your training data. This page is read-only — your data won't be modified.</p>
+    <input class="setup-input" id="scriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/...">
+    <button class="btn btn-fire" style="width:100%;justify-content:center;padding:12px" onclick="saveUrl()">Load my training data</button>
+  </div>
+</div>
+
+<div id="mainApp" style="display:none">
+<nav class="nav">
+  <div class="nav-logo">ULTRA<span>NORMAL</span></div>
+  <div class="nav-actions">
+    <div class="sync-status">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">Loading…</span>
+    </div>
+    <button class="btn btn-outline" onclick="location.reload()">↻ Refresh</button>
+    <button class="btn btn-fire" onclick="openExportModal()"><span class="btn-icon">↗</span> Export</button>
+  </div>
+</nav>
+
+<div class="page" id="sharePage">
+
+  <!-- HERO -->
+  <div class="hero-block" id="heroBlock">
+    <div class="hero-top">
+      <div class="hero-eyebrow">Surf Coast Century 50km</div>
+      <div class="hero-race">12 <span>SEP</span><br>2026</div>
+      <div class="hero-sub">Anglesea, Victoria · 50km · ~1,200m elevation</div>
+    </div>
+    <div class="hero-metrics" id="heroMetrics">
+      <div class="hero-metric">
+        <div class="hm-value" id="metDaysToRace" style="color:var(--fire)">—</div>
+        <div class="hm-label">Days to race</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hm-value" id="metWeek">—</div>
+        <div class="hm-label">Current week</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hm-value" id="metComplete">—</div>
+        <div class="hm-label">Complete</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hm-value" id="metACWR">—</div>
+        <div class="hm-label">ACWR</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIG STATS -->
+  <div class="big-stats">
+    <div class="big-stat">
+      <div class="bs-label">Minutes trained</div>
+      <div class="bs-value" id="bsMinutes">—</div>
+      <div class="bs-sub" id="bsMinutesSub">of planned volume</div>
+    </div>
+    <div class="big-stat green">
+      <div class="bs-label">Training load</div>
+      <div class="bs-value" id="bsLoad" style="color:var(--canopy)">—</div>
+      <div class="bs-sub">Arbitrary Units (RPE × min)</div>
+    </div>
+    <div class="big-stat blue">
+      <div class="bs-label">Sessions done</div>
+      <div class="bs-value" id="bsSessions" style="color:#5A9ABB">—</div>
+      <div class="bs-sub" id="bsSessionsSub">of active sessions</div>
+    </div>
+    <div class="big-stat purple">
+      <div class="bs-label">Avg RPE</div>
+      <div class="bs-value" id="bsRPE" style="color:#9A7ACA">—</div>
+      <div class="bs-sub">Across all logged sessions</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS + WEEK SUMMARY -->
+  <div class="section">
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">Weekly Progress</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="ring-container">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#2A2A28" stroke-width="8"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#D95F2B" stroke-width="8"
+              stroke-dasharray="263.9" id="progressRing" stroke-dashoffset="263.9"
+              stroke-linecap="round" style="transition:stroke-dashoffset 0.8s"/>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-pct" id="ringPct">0%</div>
+            <div class="ring-of">done</div>
+          </div>
+        </div>
+        <div class="ring-stats" id="ringStats"></div>
+      </div>
+      <div class="section-body" style="padding-top:0">
+        <div class="week-summary" id="weekSummary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACWR CHART -->
+  <div class="section">
+    <div class="section-card">
+      <div class="section-header" style="padding-bottom:16px">
+        <div class="section-title">Acute:Chronic Workload Ratio</div>
+        <div id="acwrBadge"></div>
+      </div>
+      <div style="padding:0 16px 20px">
+        <canvas id="acwrCanvas" width="740" height="180"></canvas>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)"><div style="width:7px;height:7px;border-radius:50%;background:var(--stone)"></div>Under 0.8</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)"><div style="width:7px;height:7px;border-radius:50%;background:var(--canopy)"></div>0.8–1.3 Optimal</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)"><div style="width:7px;height:7px;border-radius:50%;background:#D4A020"></div>1.3–1.5 Caution</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)"><div style="width:7px;height:7px;border-radius:50%;background:var(--hard)"></div>>1.5 Risk</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION LOG -->
+  <div class="section">
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">Recent Sessions</div></div>
+      <div class="section-body">
+        <div class="session-list" id="sessionList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KNEE -->
+  <div class="section">
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">Knee Pain Log</div></div>
+      <div class="section-body">
+        <div id="kneeSection"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;padding:32px 0 0;border-top:1px solid var(--border);margin-top:8px">
+    <div style="font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">ULTRA<span style="color:var(--fire)">NORMAL</span></div>
+    <div style="font-size:11px;color:var(--subtle)">Trail running · Physio · Life. For people who just keep going.</div>
+  </div>
+</div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-title">Export for Instagram</div>
+    <div class="modal-sub">Choose your format then download.</div>
+    <div class="export-options">
+      <div class="export-opt selected" id="opt-square" onclick="selectFormat('square')">
+        <div class="export-opt-icon">⬛</div>
+        <div class="export-opt-label">Feed Post</div>
+        <div class="export-opt-size">1080 × 1080</div>
+      </div>
+      <div class="export-opt" id="opt-story" onclick="selectFormat('story')">
+        <div class="export-opt-icon">📱</div>
+        <div class="export-opt-label">Story</div>
+        <div class="export-opt-size">1080 × 1920</div>
+      </div>
+    </div>
+    <div id="exportStatus" style="font-size:12px;color:var(--subtle);margin-bottom:16px;min-height:18px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeExportModal()">Cancel</button>
+      <button class="btn btn-fire" id="downloadBtn" onclick="doExport()"><span>↓</span> Download image</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════ CONFIG ════════════
+const SCRIPT_URL_KEY = "scc_script_url";
+const TYPE_COLOR = {easy:"#4A7C59",mod:"#8A6C20",hard:"#C43020",long:"#1A5A6E",rest:"#555550",strength:"#5A3A7A"};
+const TYPE_LABEL = {easy:"Easy",mod:"Threshold",hard:"Intervals",long:"Long Run",rest:"Rest",strength:"Strength"};
+
+// ════════════ PLAN (same as tracker) ════════════
+const PHASES=[
+  {id:1,weeks:[
+    {week:1,sub:"Add structure",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"easy",s:"40 min easy treadmill, 3–4% incline.",dur:40},
+      {day:"Wed",type:"strength",s:"35 min easy + Mountain Legs Phase 1.",dur:43},{day:"Thu",type:"easy",s:"40 min easy, 3% incline.",dur:40},
+      {day:"Fri",type:"easy",s:"40 min easy + strides at the end of the run.",dur:40},{day:"Sat",type:"rest",s:"Rest.",dur:0},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:2,sub:"Build time",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"easy",s:"50 min easy rolling treadmill.",dur:50},
+      {day:"Wed",type:"strength",s:"40 min easy + Mountain Legs Phase 1.",dur:50},{day:"Thu",type:"easy",s:"45 min easy + strides at the end of the run.",dur:45},
+      {day:"Fri",type:"easy",s:"50 min easy, 5–7% incline.",dur:50},{day:"Sat",type:"rest",s:"Rest.",dur:0},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:3,sub:"First quality",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"hard",s:"55 min — 4×3-min hill repeats at 8–9%.",dur:55},
+      {day:"Wed",type:"strength",s:"45 min easy + Mountain Legs Phase 1.",dur:55},{day:"Thu",type:"mod",s:"55 min uphill threshold.",dur:55},
+      {day:"Fri",type:"easy",s:"45 min easy + strides at the end of the run.",dur:45},{day:"Sat",type:"long",s:"Long run — 60 min outdoors.",dur:60},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:4,sub:"Recovery week",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"easy",s:"40 min easy, flat.",dur:40},
+      {day:"Wed",type:"strength",s:"40 min easy + Mountain Legs consolidation.",dur:50},{day:"Thu",type:"easy",s:"45 min easy + strides at the end of the run.",dur:45},
+      {day:"Fri",type:"easy",s:"40 min easy treadmill.",dur:40},{day:"Sat",type:"long",s:"55 min easy outdoors.",dur:55},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+  ]},
+  {id:2,weeks:[
+    {week:5,sub:"Lift intensity",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"hard",s:"60 min — 5×3-min hill repeats at 9–10%.",dur:60},
+      {day:"Wed",type:"strength",s:"55 min easy + Mountain Legs Phase 2. Heat suit.",dur:70,heat:true},{day:"Thu",type:"mod",s:"65 min uphill threshold.",dur:65},
+      {day:"Fri",type:"easy",s:"50 min easy. Heat suit.",dur:50,heat:true},{day:"Sat",type:"long",s:"Long run — 75 min outdoors.",dur:75},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:6,sub:"Aerobic build",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"easy",s:"60 min easy + strides. Heat suit.",dur:60,heat:true},
+      {day:"Wed",type:"mod",s:"65 min uphill threshold.",dur:65},{day:"Thu",type:"strength",s:"55 min easy + strength.",dur:70},
+      {day:"Fri",type:"easy",s:"60 min easy. Heat suit.",dur:60,heat:true},{day:"Sat",type:"long",s:"90 min outdoors. Race vest.",dur:90},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:7,sub:"Peak intensity",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"hard",s:"70 min — 6×3-min hill repeats at 10–12%.",dur:70},
+      {day:"Wed",type:"strength",s:"60 min easy + peak strength. Heat suit.",dur:80,heat:true},{day:"Thu",type:"mod",s:"70 min uphill threshold.",dur:70},
+      {day:"Fri",type:"easy",s:"55 min easy. Heat suit.",dur:55,heat:true},{day:"Sat",type:"long",s:"Long run — 2 hrs outdoors.",dur:120},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:8,sub:"Recovery week",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"easy",s:"50 min easy. Heat suit.",dur:50,heat:true},
+      {day:"Wed",type:"strength",s:"55 min + Mountain Legs recovery.",dur:65},{day:"Thu",type:"easy",s:"50 min easy.",dur:50},
+      {day:"Fri",type:"easy",s:"50 min easy.",dur:50},{day:"Sat",type:"long",s:"65 min easy outdoors.",dur:65},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:9,sub:"Race specificity",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"hard",s:"70 min — 6×3-min hill repeats at 10–12%.",dur:70},
+      {day:"Wed",type:"strength",s:"65 min easy + peak strength. Heat suit.",dur:85,heat:true},{day:"Thu",type:"mod",s:"75 min uphill threshold — biggest session.",dur:75},
+      {day:"Fri",type:"easy",s:"55 min easy. Heat suit.",dur:55,heat:true},{day:"Sat",type:"long",s:"Long run — 2.5 hrs. Race simulation.",dur:150},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+  ]},
+  {id:3,weeks:[
+    {week:10,sub:"Final push",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"hard",s:"65 min — 5×3-min hills at 10–12%.",dur:65},
+      {day:"Wed",type:"strength",s:"60 min easy + final strength. Heat suit.",dur:75,heat:true},{day:"Thu",type:"mod",s:"65 min uphill threshold.",dur:65},
+      {day:"Fri",type:"easy",s:"50 min easy.",dur:50},{day:"Sat",type:"long",s:"Long run — 2 hrs. Last big day.",dur:120},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:11,sub:"Taper begins",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"hard",s:"55 min — 4×3-min hills at 10%.",dur:55},
+      {day:"Wed",type:"strength",s:"50 min easy + light strength.",dur:55},{day:"Thu",type:"easy",s:"50 min easy + strides at the end of the run.",dur:50},
+      {day:"Fri",type:"easy",s:"40 min easy.",dur:40},{day:"Sat",type:"long",s:"75 min easy trail run.",dur:75},{day:"Sun",type:"rest",s:"Rest.",dur:0},
+    ]},
+    {week:12,sub:"Race week",days:[
+      {day:"Mon",type:"rest",s:"Rest.",dur:0},{day:"Tue",type:"easy",s:"35 min easy.",dur:35},
+      {day:"Wed",type:"easy",s:"30 min easy + strides at the end of the run.",dur:30},{day:"Thu",type:"easy",s:"20 min shakeout.",dur:20},
+      {day:"Fri",type:"rest",s:"Rest. Drive to Anglesea.",dur:0},{day:"Sat",type:"hard",s:"🏁 Race day — Surf Coast Century 50km.",dur:360},{day:"Sun",type:"rest",s:"Recovery.",dur:0},
+    ]},
+  ]},
+];
+
+function allSessions(){
+  const out=[];
+  PHASES.forEach(ph=>ph.weeks.forEach(wk=>wk.days.forEach((d,di)=>{
+    out.push({key:`w${wk.week}-d${di}`,weekNum:wk.week,dayIdx:di,...d});
+  })));
+  return out;
+}
+
+// ════════════ STATE ════════════
+let LOGS={}, KNEE={};
+let SCRIPT_URL=localStorage.getItem(SCRIPT_URL_KEY)||"";
+let exportFormat="square";
+
+function setSyncStatus(s,label){
+  const dot=document.getElementById("syncDot");
+  const lbl=document.getElementById("syncLabel");
+  if(!dot)return;
+  dot.className="sync-dot "+s;
+  lbl.textContent=label;
+}
+
+// ════════════ LOAD DATA ════════════
+async function loadData(){
+  if(!SCRIPT_URL)return;
+  setSyncStatus("syncing","Loading…");
+  try{
+    const data=await fetchWithCallback(SCRIPT_URL+"?action=get&cb="+Date.now());
+    if(data&&data.logs) LOGS=data.logs;
+    if(data&&data.knee) KNEE=data.knee;
+    setSyncStatus("synced","Live");
+    render();
+  }catch(e){
+    const local=localStorage.getItem("scc_backup");
+    if(local){try{const d=JSON.parse(local);LOGS=d.logs||{};KNEE=d.knee||{};}catch(e){}}
+    setSyncStatus("error","Cached data");
+    render();
+  }
+}
+
+function fetchWithCallback(url){
+  return new Promise((resolve,reject)=>{
+    fetch(url,{method:"GET",mode:"cors"}).then(r=>r.json()).then(resolve).catch(()=>{
+      const cbName="scc_cb_"+Date.now();
+      const script=document.createElement("script");
+      window[cbName]=function(data){delete window[cbName];document.head.removeChild(script);resolve(data);};
+      script.onerror=()=>{delete window[cbName];try{document.head.removeChild(script);}catch(e){}reject(new Error("Failed"));};
+      script.src=url+"&callback="+cbName;
+      document.head.appendChild(script);
+      setTimeout(()=>reject(new Error("Timeout")),8000);
+    });
+  });
+}
+
+// ════════════ HELPERS ════════════
+function sessionLoad(key,dur){
+  const log=LOGS[key];
+  if(!log||!log.rpe||(log.status!=="done"&&log.status!=="modified"))return 0;
+  const d=(log.actualDuration!==undefined&&log.actualDuration>0)?log.actualDuration:dur;
+  return log.rpe*d;
+}
+
+function weeklyLoad(wk){
+  return allSessions().filter(s=>s.weekNum===wk).reduce((a,s)=>a+sessionLoad(s.key,s.dur),0);
+}
+
+function weekPrescribed(wk){
+  return allSessions().filter(s=>s.weekNum===wk&&s.type!=="rest").reduce((a,s)=>a+s.dur,0);
+}
+
+function weekActual(wk){
+  return allSessions().filter(s=>s.weekNum===wk&&s.type!=="rest").reduce((a,s)=>{
+    const log=LOGS[s.key];
+    if(!log||log.status==="skipped")return a;
+    if(log.status==="done"||log.status==="modified")return a+((log.actualDuration&&log.actualDuration>0)?log.actualDuration:s.dur);
+    return a;
+  },0);
+}
+
+function calcACWR(){
+  const sessions=allSessions().sort((a,b)=>a.weekNum!==b.weekNum?a.weekNum-b.weekNum:a.dayIdx-b.dayIdx);
+  const dailyLoads=new Array(84).fill(0);
+  sessions.forEach(s=>{
+    const dayNum=(s.weekNum-1)*7+s.dayIdx;
+    dailyLoads[dayNum]=sessionLoad(s.key,s.dur);
+  });
+  let lastLoadedDay=-1;
+  dailyLoads.forEach((l,i)=>{if(l>0)lastLoadedDay=i;});
+  const RAMP=28;
+  return sessions.map(s=>{
+    const dayNum=(s.weekNum-1)*7+s.dayIdx;
+    if(dayNum>lastLoadedDay)return{...s,acute:0,chronic:0,ratio:null};
+    const acute=dailyLoads.slice(Math.max(0,dayNum-6),dayNum+1).reduce((a,b)=>a+b,0);
+    let chronic;
+    if(dayNum<RAMP){
+      const total=dailyLoads.slice(0,dayNum+1).reduce((a,b)=>a+b,0);
+      chronic=(total/(dayNum+1))*7;
+    }else{
+      chronic=dailyLoads.slice(dayNum-27,dayNum+1).reduce((a,b)=>a+b,0)/4;
+    }
+    return{...s,acute,chronic,ratio:chronic>0?acute/chronic:null};
+  });
+}
+
+function acwrColor(r){
+  if(!r)return"#888";
+  if(r<0.8)return"#C8C4BA";
+  if(r<1.3)return"#4A7C59";
+  if(r<1.5)return"#D4A020";
+  return"#C43020";
+}
+
+// ════════════ RENDER ════════════
+function render(){
+  const sessions=allSessions();
+  const active=sessions.filter(s=>s.type!=="rest");
+  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
+  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+  const skip=sessions.filter(s=>LOGS[s.key]?.status==="skipped").length;
+  const total=active.length;
+  const pct=total?Math.round((done+mod)/total*100):0;
+
+  // Days to race
+  const raceDate=new Date("2026-09-12");
+  const today=new Date();
+  const daysToRace=Math.max(0,Math.ceil((raceDate-today)/(1000*60*60*24)));
+
+  // Current week
+  let currentWeek=1;
+  for(let w=1;w<=12;w++){
+    if(sessions.filter(s=>s.weekNum===w&&s.type!=="rest").some(s=>LOGS[s.key]?.status)) currentWeek=w;
+  }
+
+  // ACWR
+  const acwr=calcACWR();
+  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
+  const acwrVal=latest?.ratio;
+
+  // Totals
+  let totalPrescribed=0,totalActual=0,totalLoad=0;
+  const rpeVals=[];
+  for(let w=1;w<=12;w++){
+    totalPrescribed+=weekPrescribed(w);
+    totalActual+=weekActual(w);
+    totalLoad+=weeklyLoad(w);
+  }
+  sessions.filter(s=>LOGS[s.key]?.rpe>0).forEach(s=>rpeVals.push(LOGS[s.key].rpe));
+  const avgRpe=rpeVals.length?(rpeVals.reduce((a,b)=>a+b,0)/rpeVals.length).toFixed(1):"—";
+
+  // ── Hero metrics ──
+  document.getElementById("metDaysToRace").textContent=daysToRace;
+  document.getElementById("metWeek").textContent=`${currentWeek}/12`;
+  document.getElementById("metComplete").textContent=`${pct}%`;
+  const acwrEl=document.getElementById("metACWR");
+  acwrEl.textContent=acwrVal?acwrVal.toFixed(2):"—";
+  acwrEl.style.color=acwrColor(acwrVal);
+
+  // ── Big stats ──
+  document.getElementById("bsMinutes").textContent=totalActual.toLocaleString();
+  document.getElementById("bsMinutesSub").textContent=`of ${totalPrescribed.toLocaleString()} min planned`;
+  document.getElementById("bsLoad").textContent=totalLoad>0?totalLoad.toLocaleString():"—";
+  document.getElementById("bsSessions").textContent=`${done+mod}`;
+  document.getElementById("bsSessionsSub").textContent=`of ${total} active sessions`;
+  document.getElementById("bsRPE").textContent=avgRpe;
+
+  // ── Progress ring ──
+  const circ=263.9;
+  document.getElementById("progressRing").style.strokeDashoffset=circ-(circ*pct/100);
+  document.getElementById("ringPct").textContent=pct+"%";
+  document.getElementById("ringStats").innerHTML=`
+    <div class="ring-stat"><span class="ring-stat-label">Done</span><span class="ring-stat-value" style="color:var(--canopy)">✓ ${done}</span></div>
+    <div class="ring-stat"><span class="ring-stat-label">Modified</span><span class="ring-stat-value" style="color:#5A8ABB">~ ${mod}</span></div>
+    <div class="ring-stat"><span class="ring-stat-label">Skipped</span><span class="ring-stat-value" style="color:var(--hard)">✕ ${skip}</span></div>
+    <div class="ring-stat"><span class="ring-stat-label">Remaining</span><span class="ring-stat-value" style="color:var(--subtle)">${total-done-mod-skip}</span></div>
+  `;
+
+  // ── Weekly summary ──
+  let weekHtml="";
+  for(let w=1;w<=12;w++){
+    const p=weekPrescribed(w);
+    const a=weekActual(w);
+    const pct2=p?Math.min(100,Math.round(a/p*100)):0;
+    const col=pct2>=90?"var(--canopy)":pct2>=60?"#D4A020":"var(--hard)";
+    const isCurrent=w===currentWeek;
+    weekHtml+=`<div class="week-row${isCurrent?" week-current":""}">
+      <div class="week-label" style="color:${isCurrent?"var(--dust)":"var(--stone)"}">W${w}</div>
+      <div class="week-bar-wrap"><div class="week-bar-fill" style="width:${pct2}%;background:${col}"></div></div>
+      <div class="week-pct" style="color:${pct2>0?col:"var(--subtle)"}">${pct2>0?pct2+"%":"—"}</div>
+      <div class="week-load" style="color:var(--subtle)">${weeklyLoad(w)>0?weeklyLoad(w).toLocaleString()+" AU":""}</div>
+    </div>`;
+  }
+  document.getElementById("weekSummary").innerHTML=weekHtml;
+
+  // ── ACWR chart ──
+  renderACWRChart(acwr);
+
+  // ── ACWR badge ──
+  if(acwrVal){
+    const col=acwrColor(acwrVal);
+    const label=acwrVal<0.8?"Undertraining":acwrVal<1.3?"Optimal":acwrVal<1.5?"Caution":"High risk";
+    document.getElementById("acwrBadge").innerHTML=`<span style="font-size:12px;font-weight:600;color:${col};background:${col}18;border:1px solid ${col}44;padding:3px 10px;border-radius:12px">${label}</span>`;
+  }
+
+  // ── Session log (last 10 done/modified) ──
+  const loggedSessions=sessions
+    .filter(s=>s.type!=="rest"&&(LOGS[s.key]?.status==="done"||LOGS[s.key]?.status==="modified"))
+    .slice(-10).reverse();
+
+  document.getElementById("sessionList").innerHTML=loggedSessions.length
+    ? loggedSessions.map(s=>{
+        const log=LOGS[s.key];
+        const load=sessionLoad(s.key,s.dur);
+        const typeLabel=TYPE_LABEL[s.type]||s.type;
+        return`<div class="session-item">
+          <div class="session-dot" style="background:${TYPE_COLOR[s.type]}"></div>
+          <div class="session-info">
+            <div class="session-name">W${s.weekNum} ${s.day} — ${s.s}</div>
+            <div class="session-meta">${typeLabel}${log.status==="modified"?" · Modified":""}${load?` · ${load.toLocaleString()} AU`:""}</div>
+          </div>
+          ${log.rpe?`<div class="session-rpe">RPE ${log.rpe}</div>`:""}
+        </div>`;
+      }).join("")
+    : `<div style="color:var(--subtle);font-size:13px;text-align:center;padding:16px">No sessions logged yet.</div>`;
+
+  // ── Knee ──
+  const kneeKeys=Object.keys(KNEE).filter(k=>KNEE[k]>0);
+  if(kneeKeys.length){
+    let kneeHtml=`<div style="margin-bottom:12px;font-size:13px;color:var(--stone)">Worst daily pain per training session (0–10)</div><div class="knee-grid">`;
+    sessions.filter(s=>s.type!=="rest").slice(0,28).forEach((s,i)=>{
+      const kKey=`w${s.weekNum}-knee-d${s.dayIdx}`;
+      const val=KNEE[kKey]||0;
+      const cls=val===0?"knee-empty":val<=3?"knee-none":val<=5?"knee-mild":val<=7?"knee-mod":"knee-sig";
+      kneeHtml+=`<div class="knee-pip ${cls}" title="W${s.weekNum} ${s.day}">${val||"·"}</div>`;
+    });
+    kneeHtml+=`</div>`;
+    const allVals=kneeKeys.map(k=>KNEE[k]).filter(v=>v>0);
+    const peakKnee=Math.max(...allVals);
+    const avgKnee=(allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(1);
+    const col=peakKnee<=3?"var(--canopy)":peakKnee<=6?"#D4A020":"var(--hard)";
+    kneeHtml+=`<div style="display:flex;gap:20px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:3px">Peak pain</div><div style="font-size:24px;font-weight:700;color:${col}">${peakKnee}/10</div></div>
+      <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--subtle);margin-bottom:3px">Average</div><div style="font-size:24px;font-weight:700;color:${col}">${avgKnee}/10</div></div>
+    </div>`;
+    document.getElementById("kneeSection").innerHTML=kneeHtml;
+  }else{
+    document.getElementById("kneeSection").innerHTML=`<div style="color:var(--subtle);font-size:13px">No knee pain data logged yet.</div>`;
+  }
+}
+
+function renderACWRChart(acwr){
+  const canvas=document.getElementById("acwrCanvas");
+  if(!canvas)return;
+  const ctx=canvas.getContext("2d");
+  const W=740,H=180,pl=36,pr=12,pt=12,pb=24;
+  const cw=W-pl-pr,ch=H-pt-pb;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#1A1A18";ctx.fillRect(0,0,W,H);
+  const ratios=acwr.map(d=>d.ratio).filter(r=>r!==null);
+  if(ratios.length<2){
+    ctx.fillStyle="#6B6862";ctx.font="13px system-ui";ctx.textAlign="center";
+    ctx.fillText("Log RPE on sessions to see your ACWR chart",W/2,H/2);return;
+  }
+  const maxR=Math.max(2,...ratios)*1.1;
+  const toY=r=>pt+ch-(r/maxR)*ch,toX=i=>pl+(i/(acwr.length-1))*cw;
+  [[0,0.8,"#1A2A1A"],[0.8,1.3,"#162814"],[1.3,1.5,"#2A2010"],[1.5,3,"#2A1010"]].forEach(([lo,hi,col])=>{
+    ctx.fillStyle=col;const y1=toY(Math.min(hi,maxR)),y2=toY(lo);ctx.fillRect(pl,y1,cw,y2-y1);
+  });
+  [0.8,1.0,1.3].forEach(r=>{
+    if(r>maxR)return;
+    ctx.strokeStyle="#ffffff14";ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(pl,toY(r));ctx.lineTo(pl+cw,toY(r));ctx.stroke();
+    ctx.fillStyle="#555550";ctx.font="9px system-ui";ctx.textAlign="right";ctx.fillText(r.toFixed(1),pl-3,toY(r)+3);
+  });
+  ctx.setLineDash([]);
+  [...new Set(acwr.map(d=>d.weekNum))].forEach(wk=>{
+    const first=acwr.findIndex(d=>d.weekNum===wk);
+    ctx.fillStyle="#444440";ctx.font="9px system-ui";ctx.textAlign="center";ctx.fillText("W"+wk,toX(first),H-4);
+  });
+  // Line
+  ctx.beginPath();let started=false;
+  acwr.forEach((d,i)=>{
+    if(d.ratio===null)return;
+    const x=toX(i),y=toY(d.ratio);
+    if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle="#D95F2B";ctx.lineWidth=2.5;ctx.stroke();
+  // Dots
+  acwr.forEach((d,i)=>{
+    if(d.ratio===null)return;
+    ctx.beginPath();ctx.arc(toX(i),toY(d.ratio),3.5,0,Math.PI*2);
+    ctx.fillStyle=acwrColor(d.ratio);ctx.fill();
+  });
+}
+
+// ════════════ EXPORT ════════════
+function openExportModal(){document.getElementById("exportModal").classList.add("open");}
+function closeExportModal(){document.getElementById("exportModal").classList.remove("open");}
+function selectFormat(f){
+  exportFormat=f;
+  document.getElementById("opt-square").classList.toggle("selected",f==="square");
+  document.getElementById("opt-story").classList.toggle("selected",f==="story");
+}
+
+async function doExport(){
+  const btn=document.getElementById("downloadBtn");
+  const status=document.getElementById("exportStatus");
+  btn.textContent="Generating…";
+  btn.disabled=true;
+  status.textContent="Rendering your training data…";
+
+  try{
+    const isStory=exportFormat==="story";
+    const targetW=isStory?1080:1080;
+    const targetH=isStory?1920:1080;
+
+    // Build export canvas manually for crisp output
+    const canvas=document.createElement("canvas");
+    canvas.width=targetW;
+    canvas.height=targetH;
+    const ctx=canvas.getContext("2d");
+
+    // Background
+    ctx.fillStyle="#0E0E0C";
+    ctx.fillRect(0,0,targetW,targetH);
+
+    if(isStory){
+      drawStory(ctx,targetW,targetH);
+    }else{
+      drawSquare(ctx,targetW,targetH);
+    }
+
+    // Download
+    const link=document.createElement("a");
+    link.download=`ultranormal-training-${exportFormat}-${new Date().toISOString().slice(0,10)}.png`;
+    link.href=canvas.toDataURL("image/png",1.0);
+    link.click();
+
+    status.textContent="Downloaded! Open in Photos to share to Instagram.";
+    btn.textContent="↓ Download image";
+    btn.disabled=false;
+  }catch(e){
+    status.textContent="Export failed — try again.";
+    btn.textContent="↓ Download image";
+    btn.disabled=false;
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+function drawSquare(ctx,W,H){
+  const sessions=allSessions();
+  const active=sessions.filter(s=>s.type!=="rest");
+  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
+  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+  const total=active.length;
+  const pct=total?Math.round((done+mod)/total*100):0;
+  const raceDate=new Date("2026-09-12");
+  const daysToRace=Math.max(0,Math.ceil((raceDate-new Date())/(1000*60*60*24)));
+  let totalActual=0,totalLoad=0;
+  for(let w=1;w<=12;w++){totalActual+=weekActual(w);totalLoad+=weeklyLoad(w);}
+  const acwr=calcACWR();
+  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
+  const acwrVal=latest?.ratio;
+  let currentWeek=1;
+  for(let w=1;w<=12;w++){if(sessions.filter(s=>s.weekNum===w&&s.type!=="rest").some(s=>LOGS[s.key]?.status))currentWeek=w;}
+
+  // Fire accent bar top
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,6);
+
+  // Logo
+  ctx.fillStyle="#C8C4BA";ctx.font="500 22px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("ULTRA",72,72);
+  ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",72+ctx.measureText("ULTRA").width,72);
+
+  // Race line
+  ctx.fillStyle="#6B6862";ctx.font="300 16px 'DM Sans',sans-serif";ctx.fillText("Surf Coast Century 50km · 12 Sep 2026",72,100);
+
+  // BIG number — days to race
+  ctx.fillStyle="#D95F2B";ctx.font="700 200px 'DM Sans',sans-serif";ctx.textAlign="center";ctx.fillText(daysToRace,W/2,380);
+  ctx.fillStyle="#6B6862";ctx.font="500 22px 'DM Sans',sans-serif";ctx.fillText("DAYS TO RACE",W/2,420);
+
+  // Divider
+  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(72,460);ctx.lineTo(W-72,460);ctx.stroke();
+
+  // 4 metric boxes
+  const metrics=[
+    {v:`${pct}%`,l:"Complete"},
+    {v:`W${currentWeek}`,l:"Week"},
+    {v:totalActual.toLocaleString(),l:"Min trained"},
+    {v:acwrVal?acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(acwrVal)},
+  ];
+  const boxW=(W-144-36)/4, boxH=160, bx=72, by=490;
+  metrics.forEach((m,i)=>{
+    const x=bx+i*(boxW+12);
+    ctx.fillStyle="#1A1A18";
+    roundRect(ctx,x,by,boxW,boxH,12);ctx.fill();
+    ctx.fillStyle=m.col||"#F5F2EC";
+    ctx.font="700 44px 'DM Sans',sans-serif";ctx.textAlign="center";
+    ctx.fillText(m.v,x+boxW/2,by+70);
+    ctx.fillStyle="#6B6862";ctx.font="500 14px 'DM Sans',sans-serif";
+    ctx.fillText(m.l.toUpperCase(),x+boxW/2,by+110);
+  });
+
+  // Week progress bars
+  ctx.textAlign="left";
+  const barStartY=700,barH=8,barGap=22,barX=72,barW=W-144-80;
+  ctx.fillStyle="#F5F2EC";ctx.font="500 18px 'DM Sans',sans-serif";ctx.fillText("WEEKLY PROGRESS",72,690);
+  for(let w=1;w<=12;w++){
+    const p=weekPrescribed(w),a=weekActual(w);
+    const p2=p?Math.min(100,Math.round(a/p*100)):0;
+    const col=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
+    const y=barStartY+(w-1)*barGap;
+    ctx.fillStyle="#1A1A18";ctx.fillRect(barX+30,y,barW,barH);
+    if(p2>0){ctx.fillStyle=col;ctx.fillRect(barX+30,y,barW*(p2/100),barH);}
+    ctx.fillStyle="#555550";ctx.font="400 12px 'DM Sans',sans-serif";ctx.fillText("W"+w,barX,y+8);
+    if(p2>0){ctx.fillStyle=col;ctx.textAlign="right";ctx.fillText(p2+"%",W-72,y+8);ctx.textAlign="left";}
+  }
+
+  // Total load
+  ctx.fillStyle="#2A2A28";ctx.fillRect(72,985,W-144,1);
+  ctx.fillStyle="#6B6862";ctx.font="300 16px 'DM Sans',sans-serif";ctx.textAlign="center";
+  ctx.fillText(`Total training load: ${totalLoad.toLocaleString()} AU  ·  ${done+mod} sessions completed`,W/2,1020);
+
+  // Branding footer
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-6,W,6);
+  ctx.fillStyle="#6B6862";ctx.font="400 14px 'DM Sans',sans-serif";ctx.textAlign="right";
+  ctx.fillText("ultranormal.github.io",W-40,H-24);
+}
+
+function drawStory(ctx,W,H){
+  const sessions=allSessions();
+  const active=sessions.filter(s=>s.type!=="rest");
+  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
+  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+  const total=active.length;
+  const pct=total?Math.round((done+mod)/total*100):0;
+  const raceDate=new Date("2026-09-12");
+  const daysToRace=Math.max(0,Math.ceil((raceDate-new Date())/(1000*60*60*24)));
+  let totalActual=0,totalLoad=0;
+  for(let w=1;w<=12;w++){totalActual+=weekActual(w);totalLoad+=weeklyLoad(w);}
+  const acwr=calcACWR();
+  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
+  const acwrVal=latest?.ratio;
+  let currentWeek=1;
+  for(let w=1;w<=12;w++){if(sessions.filter(s=>s.weekNum===w&&s.type!=="rest").some(s=>LOGS[s.key]?.status))currentWeek=w;}
+
+  // Fire bars
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,8);
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-8,W,8);
+
+  // Logo
+  ctx.fillStyle="#C8C4BA";ctx.font="500 28px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("ULTRA",60,90);
+  ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",60+ctx.measureText("ULTRA").width+2,90);
+  ctx.fillStyle="#6B6862";ctx.font="300 18px 'DM Sans',sans-serif";ctx.fillText("Training Journal",60,124);
+
+  // Race heading
+  ctx.fillStyle="#F5F2EC";ctx.font="700 88px 'DM Sans',sans-serif";ctx.textAlign="center";ctx.fillText("12 SEP",W/2,260);
+  ctx.fillStyle="#D95F2B";ctx.font="700 40px 'DM Sans',sans-serif";ctx.fillText("2026",W/2,314);
+  ctx.fillStyle="#6B6862";ctx.font="300 20px 'DM Sans',sans-serif";ctx.fillText("Surf Coast Century 50km",W/2,358);
+
+  // Divider
+  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,390);ctx.lineTo(W-60,390);ctx.stroke();
+
+  // Days to race — giant
+  ctx.fillStyle="#D95F2B";ctx.font="700 280px 'DM Sans',sans-serif";ctx.textAlign="center";ctx.fillText(daysToRace,W/2,700);
+  ctx.fillStyle="#6B6862";ctx.font="500 28px 'DM Sans',sans-serif";ctx.fillText("DAYS TO RACE",W/2,750);
+
+  // 2×2 metrics
+  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,790);ctx.lineTo(W-60,790);ctx.stroke();
+  const mets=[
+    {v:`${pct}%`,l:"PLAN COMPLETE",col:"#F5F2EC"},{v:`W${currentWeek}/12`,l:"CURRENT WEEK",col:"#F5F2EC"},
+    {v:totalActual+"",l:"MIN TRAINED",col:"#4A7C59"},{v:acwrVal?acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(acwrVal)},
+  ];
+  mets.forEach((m,i)=>{
+    const col2=i%2===0?60:W/2+20;
+    const row=Math.floor(i/2);
+    const y=840+row*200;
+    ctx.fillStyle=m.col;ctx.font="700 72px 'DM Sans',sans-serif";ctx.textAlign=i%2===0?"left":"right";
+    ctx.fillText(m.v,i%2===0?col2:W-col2,y);
+    ctx.fillStyle="#6B6862";ctx.font="500 18px 'DM Sans',sans-serif";
+    ctx.fillText(m.l,i%2===0?col2:W-col2,y+44);
+  });
+
+  // Progress bars
+  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,1260);ctx.lineTo(W-60,1260);ctx.stroke();
+  ctx.fillStyle="#F5F2EC";ctx.font="500 24px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("WEEKLY PROGRESS",60,1308);
+  const bStartY=1330,bH=10,bGap=38,bX=60,bW=W-120-80;
+  for(let w=1;w<=12;w++){
+    const p=weekPrescribed(w),a=weekActual(w);
+    const p2=p?Math.min(100,Math.round(a/p*100)):0;
+    const col2=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
+    const y=bStartY+(w-1)*bGap;
+    ctx.fillStyle="#1E1E1C";ctx.fillRect(bX+48,y,bW,bH);
+    if(p2>0){ctx.fillStyle=col2;ctx.fillRect(bX+48,y,bW*(p2/100),bH);}
+    ctx.fillStyle="#555550";ctx.font="400 18px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("W"+w,bX,y+9);
+    if(p2>0){ctx.fillStyle=col2;ctx.textAlign="right";ctx.fillText(p2+"%",W-60,y+9);ctx.textAlign="left";}
+  }
+
+  // Footer
+  ctx.fillStyle="#6B6862";ctx.font="400 18px 'DM Sans',sans-serif";ctx.textAlign="center";
+  ctx.fillText(`${totalLoad.toLocaleString()} AU total load · ${done+mod} sessions done`,W/2,H-36);
+}
+
+// ════════════ INIT ════════════
+function init(){
+  if(!SCRIPT_URL){
+    document.getElementById("setupScreen").style.display="block";
+  }else{
+    document.getElementById("mainApp").style.display="block";
+    loadData();
+  }
+}
+
+function saveUrl(){
+  const url=document.getElementById("scriptUrlInput").value.trim();
+  if(!url.startsWith("https://script.google.com")){alert("Please paste a valid Apps Script URL.");return;}
+  SCRIPT_URL=url;
+  localStorage.setItem(SCRIPT_URL_KEY,url);
+  document.getElementById("setupScreen").style.display="none";
+  document.getElementById("mainApp").style.display="block";
+  loadData();
+}
+
+init();
+</script>
+</body>
+</html>
