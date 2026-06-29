@@ -509,7 +509,9 @@ function allSessions(){
 function sessionLoad(key,dur){
   const log=LOGS[key];
   if(!log||!log.rpe||(log.status!=="done"&&log.status!=="modified"))return 0;
-  return log.rpe*(log.actualDuration!==undefined?log.actualDuration:dur);
+  // Use actualDuration only if it's been explicitly set to >0, otherwise fall back to planned duration
+  const effectiveDur=(log.actualDuration!==undefined&&log.actualDuration>0)?log.actualDuration:dur;
+  return log.rpe*effectiveDur;
 }
 
 function weeklyLoad(wk){
@@ -524,7 +526,7 @@ function weekActualMin(wk){
   return allSessions().filter(s=>s.weekNum===wk&&s.type!=="rest").reduce((a,s)=>{
     const log=LOGS[s.key];
     if(!log||log.status==="skipped")return a;
-    if(log.status==="done"||log.status==="modified") return a+(log.actualDuration!==undefined?log.actualDuration:s.dur);
+    if(log.status==="done"||log.status==="modified") return a+((log.actualDuration!==undefined&&log.actualDuration>0)?log.actualDuration:s.dur);
     return a;
   },0);
 }
@@ -532,20 +534,33 @@ function weekActualMin(wk){
 function calcACWR(){
   const sessions=allSessions().sort((a,b)=>a.weekNum!==b.weekNum?a.weekNum-b.weekNum:a.dayIdx-b.dayIdx);
   const loads=sessions.map(s=>sessionLoad(s.key,s.dur));
+
+  // Find the last session index that has any load logged
+  // — don't calculate ACWR beyond what's been trained
+  let lastLoggedIdx=-1;
+  loads.forEach((l,i)=>{ if(l>0) lastLoggedIdx=i; });
+
+  const RAMP_SESSIONS=28;
   return sessions.map((s,i)=>{
+    // For sessions beyond the last logged one, return null ratio
+    // so the chart doesn't show a misleading collapse
+    if(i>lastLoggedIdx) return{...s,acute:0,chronic:0,ratio:null,ramped:i<RAMP_SESSIONS};
+
+    // Acute = sum of last 7 sessions of actual load
     const acute=loads.slice(Math.max(0,i-6),i+1).reduce((a,b)=>a+b,0);
-    // Ramped chronic load:
-    // Weeks 1-4 (first 28 sessions): chronic = rolling average of ALL data so far.
-    // This prevents artificially high ratios when the chronic base is still tiny.
-    // Week 5+ (session 29+): standard 4-week (28-session) rolling average.
-    const RAMP_SESSIONS=28;
+
+    // Ramped chronic (weeks 1-4): average of all load logged so far
+    // Standard chronic (week 5+): 28-session rolling average
     let chronic;
     if(i<RAMP_SESSIONS){
-      const allSoFar=loads.slice(0,i+1);
-      chronic=allSoFar.reduce((a,b)=>a+b,0)/Math.max(1,allSoFar.length);
+      const soFar=loads.slice(0,i+1).filter(l=>l>0);
+      // Only calculate if we have at least 1 loaded session
+      if(soFar.length===0) return{...s,acute:0,chronic:0,ratio:null,ramped:true};
+      chronic=loads.slice(0,i+1).reduce((a,b)=>a+b,0)/Math.max(1,i+1);
     }else{
       chronic=loads.slice(i-27,i+1).reduce((a,b)=>a+b,0)/28;
     }
+
     return{...s,acute,chronic,ratio:chronic>0?acute/chronic:null,ramped:i<RAMP_SESSIONS};
   });
 }
@@ -682,6 +697,7 @@ function renderPlan(){
               ${d.type==="strength"?'<span class="tag tag-str">Strength</span>':""}
               ${log.rpe?`<span class="tag tag-rpe">RPE ${log.rpe}</span>`:""}
               ${log.status==="modified"?'<span class="tag tag-mod">Modified</span>':""}
+              ${log.rpe&&log.status!=="done"&&log.status!=="modified"?'<span class="tag" style="color:#D4A020;background:#2A2010;border:1px solid #4A3010">⚠ Mark done to count load</span>':""}
             </div>
             <div class="session-actions">`;
         if(!isRest){
@@ -706,9 +722,9 @@ function renderPlan(){
             <div class="duration-row">
               <div>
                 <div class="field-label">Actual duration (min)</div>
-                <input class="duration-input" type="number" min="0" max="400" placeholder="${d.dur||0}" value="${actualDur}" onchange="setDuration('${key}',this.value)">
+                <input class="duration-input" type="number" min="0" max="400" placeholder="${d.dur||0}" value="${actualDur||''}" onchange="setDuration('${key}',this.value)">
               </div>
-              <div class="duration-planned">Planned: ${d.dur} min</div>
+              <div class="duration-planned">Planned: ${d.dur} min${actualDur&&actualDur>0&&actualDur!==d.dur?' · <span style="color:var(--fire)">'+actualDur+' logged</span>':''}</div>
             </div>
             <div>
               <label class="mod-check">
@@ -1150,7 +1166,12 @@ function renderACWR(){
       <div><div style="font-size:14px;font-weight:500;color:${col};margin-bottom:4px">${status}</div><div style="font-size:13px;color:var(--stone)">${desc}</div></div>
     </div>`;
   }else{
-    card.innerHTML=`<div style="color:var(--subtle);font-size:13px">Log RPE on your sessions to see your ACWR.</div>`;
+    // Show debug info so we can see what the calculation is returning
+    const allLoads=allSessions().map(s=>({key:s.key,load:sessionLoad(s.key,s.dur),status:LOGS[s.key]?.status,rpe:LOGS[s.key]?.rpe})).filter(s=>s.load>0);
+    const debugInfo=allLoads.length>0
+      ? `Found ${allLoads.length} session(s) with load: ${allLoads.map(s=>s.key+'='+s.load+'AU').join(', ')}`
+      : `No sessions with load found. Sessions with RPE but no done status: ${allSessions().filter(s=>LOGS[s.key]?.rpe&&!LOGS[s.key]?.status).map(s=>s.key).join(', ')||'none'}`;
+    card.innerHTML=`<div style="color:var(--subtle);font-size:13px">Calculating ACWR…<br><span style="font-size:11px;color:#5A3A7A;margin-top:4px;display:block">${debugInfo}</span></div>`;
   }
 
   const canvas=document.getElementById("acwrCanvas");
@@ -1249,6 +1270,12 @@ function showTab(name,el){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById("tab-"+name).classList.add("active");
   el.classList.add("active");
+  // Re-render canvas-based tabs when switched to (Safari hidden canvas fix)
+  if(name==="acwr") setTimeout(renderACWR,50);
+  if(name==="knee") setTimeout(renderKnee,50);
+  if(name==="status") renderStatus();
+  if(name==="weekly") renderWeekly();
+  if(name==="monthly") renderMonthly();
 }
 function togglePhase(id){expandedPhases[id]=!expandedPhases[id];render();}
 function toggleSession(key){expandedSessions[key]=!expandedSessions[key];render();}
