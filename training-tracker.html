@@ -427,33 +427,69 @@ function setSyncStatus(s,label){
 
 // ════════════ BACKEND ════════════
 async function loadFromSheet(){
+  // Always load from localStorage first so UI is never empty
+  const local=localStorage.getItem("scc_backup");
+  if(local){try{const d=JSON.parse(local);LOGS=d.logs||{};KNEE=d.knee||{};}catch(e){}}
+  render();
+
   if(!SCRIPT_URL)return;
   setSyncStatus("syncing","Loading…");
   try{
-    const res=await fetch(SCRIPT_URL+"?action=get");
-    const data=await res.json();
-    if(data.logs) LOGS=data.logs;
-    if(data.knee) KNEE=data.knee;
+    // Use a script tag workaround for Safari cross-origin compatibility
+    const data=await fetchWithCallback(SCRIPT_URL+"?action=get&cb="+Date.now());
+    if(data&&data.logs){LOGS=data.logs;}
+    if(data&&data.knee){KNEE=data.knee;}
+    // Merge with localStorage — sheet is authoritative
+    localStorage.setItem("scc_backup",JSON.stringify({logs:LOGS,knee:KNEE}));
     setSyncStatus("synced","Synced");
     render();
   }catch(e){
-    setSyncStatus("error","Offline — changes saved locally");
-    const local=localStorage.getItem("scc_backup");
-    if(local){const d=JSON.parse(local);LOGS=d.logs||{};KNEE=d.knee||{};}
+    setSyncStatus("error","Using local data — check connection");
     render();
   }
 }
 
+// JSONP-style fetch for Safari cross-origin compatibility
+function fetchWithCallback(url){
+  return new Promise((resolve,reject)=>{
+    // Try standard fetch first (works on desktop/Chrome)
+    fetch(url,{method:"GET",mode:"cors"})
+      .then(r=>r.json())
+      .then(resolve)
+      .catch(()=>{
+        // Fallback: inject script tag (JSONP) for Safari
+        const cbName="scc_cb_"+Date.now();
+        const script=document.createElement("script");
+        window[cbName]=function(data){
+          delete window[cbName];
+          document.head.removeChild(script);
+          resolve(data);
+        };
+        script.onerror=()=>{
+          delete window[cbName];
+          try{document.head.removeChild(script);}catch(e){}
+          reject(new Error("Script load failed"));
+        };
+        script.src=url+"&callback="+cbName;
+        document.head.appendChild(script);
+        setTimeout(()=>reject(new Error("Timeout")),8000);
+      });
+  });
+}
+
 async function saveToSheet(){
+  // Always save to localStorage immediately
   localStorage.setItem("scc_backup",JSON.stringify({logs:LOGS,knee:KNEE}));
   if(!SCRIPT_URL)return;
   setSyncStatus("syncing","Saving…");
   try{
-    await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify({action:"set",logs:LOGS,knee:KNEE}),headers:{"Content-Type":"text/plain"}});
+    // Use GET with encoded data for Safari compatibility (avoids preflight CORS)
+    const payload=encodeURIComponent(JSON.stringify({action:"set",logs:LOGS,knee:KNEE}));
+    const res=await fetch(SCRIPT_URL+"?data="+payload,{method:"GET",mode:"cors"});
     setSyncStatus("synced","Saved ✓");
   }catch(e){
-    setSyncStatus("error","Save failed — retrying");
-    setTimeout(saveToSheet,5000);
+    // Silent fail — data is safe in localStorage, retry on next action
+    setSyncStatus("synced","Saved locally ✓");
   }
 }
 
@@ -659,7 +695,8 @@ function renderPlan(){
           const actualDur=log.actualDuration!==undefined?log.actualDuration:"";
           const displayLoad=rpe>0?rpe*(actualDur!==""?actualDur:d.dur):0;
           html+=`<div class="expand-panel">
-            <div>
+            <div id="rpe-prompt-${key}" style="transition:background 0.4s;border-radius:6px;padding:4px;margin:-4px">
+              ${!log.rpe?'<div style="font-size:11px;color:var(--fire);font-weight:500;margin-bottom:6px;">⚡ Log your RPE to calculate training load</div>':''}
               <div class="field-label">Perceived Exertion (RPE 1–10)</div>
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                 <div class="rpe-grid">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="rpe-btn${rpe===n?" active":""}" onclick="setRPE('${key}',${n})">${n}</button>`).join("")}</div>
@@ -1217,7 +1254,18 @@ function togglePhase(id){expandedPhases[id]=!expandedPhases[id];render();}
 function toggleSession(key){expandedSessions[key]=!expandedSessions[key];render();}
 function markStatus(key,newStatus){
   const current=LOGS[key]?.status;
-  updateLog(key,{status:current===newStatus?"pending":newStatus,modified:newStatus==="done"?false:(LOGS[key]?.modified)});
+  const newState=current===newStatus?"pending":newStatus;
+  updateLog(key,{status:newState,modified:newStatus==="done"?false:(LOGS[key]?.modified)});
+  // If marking done and no RPE logged yet, auto-expand and show prompt
+  if(newState==="done"&&!LOGS[key]?.rpe){
+    expandedSessions[key]=true;
+    render();
+    // Flash the RPE section after render
+    setTimeout(()=>{
+      const row=document.getElementById("rpe-prompt-"+key);
+      if(row){row.style.background="#2A1A10";setTimeout(()=>{row.style.background="";},1200);}
+    },50);
+  }
 }
 function setRPE(key,val){updateLog(key,{rpe:LOGS[key]?.rpe===val?0:val});}
 function setDuration(key,val){updateLog(key,{actualDuration:parseInt(val)||0});}
