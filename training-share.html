@@ -157,15 +157,16 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
 /* ── EXPORT MODAL ── */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;
-  display:none;align-items:center;justify-content:center;padding:20px;
-  backdrop-filter:blur(8px);
+  display:none;align-items:flex-start;justify-content:center;padding:20px;
+  backdrop-filter:blur(8px);overflow-y:auto;
 }
 .modal-overlay.open{display:flex}
 .modal{
   background:var(--asphalt);border-radius:16px;padding:0;
-  width:100%;max-width:520px;border:1px solid var(--border);overflow:hidden;
+  width:100%;max-width:520px;border:1px solid var(--border);
+  margin:20px auto 40px;
 }
-.modal-header{padding:24px 24px 0}
+.modal-header{padding:24px 24px 0;flex-shrink:0}
 .modal-title{font-size:18px;font-weight:500;margin-bottom:4px}
 .modal-sub{font-size:13px;color:var(--subtle);margin-bottom:0}
 .modal-body{padding:20px 24px 24px}
@@ -212,7 +213,13 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
 .preview-wrap.visible{display:block}
 .preview-canvas{width:100%;border-radius:8px;display:block}
 /* Actions */
-.modal-actions{display:flex;gap:8px}
+.modal-actions{
+  display:flex;gap:8px;
+  position:sticky;bottom:0;
+  background:var(--asphalt);
+  padding-top:12px;margin-top:4px;
+  border-top:1px solid var(--border);
+}
 .modal-actions .btn{flex:1;justify-content:center;padding:10px}
 
 /* ── SETUP ── */
