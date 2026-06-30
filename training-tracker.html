@@ -427,7 +427,7 @@ function setSyncStatus(s,label){
 
 // ════════════ BACKEND ════════════
 async function loadFromSheet(){
-  // Always load from localStorage first so UI is never empty
+  // Step 1: Always show localStorage immediately so UI is never blank
   const local=localStorage.getItem("scc_backup");
   if(local){try{const d=JSON.parse(local);LOGS=d.logs||{};KNEE=d.knee||{};}catch(e){}}
   render();
@@ -435,11 +435,40 @@ async function loadFromSheet(){
   if(!SCRIPT_URL)return;
   setSyncStatus("syncing","Loading…");
   try{
-    // Use a script tag workaround for Safari cross-origin compatibility
     const data=await fetchWithCallback(SCRIPT_URL+"?action=get&cb="+Date.now());
-    if(data&&data.logs){LOGS=data.logs;}
-    if(data&&data.knee){KNEE=data.knee;}
-    // Merge with localStorage — sheet is authoritative
+
+    // Step 2: Smart merge — keep whichever version of each key is newer
+    // Every entry gets a _ts timestamp when saved. Higher _ts wins.
+    // If no _ts exists, sheet data wins (backward compat with old entries).
+    if(data&&data.logs){
+      const sheetLogs=data.logs;
+      const merged={...sheetLogs};
+      Object.keys(LOGS).forEach(key=>{
+        const local=LOGS[key];
+        const remote=sheetLogs[key];
+        if(!remote){
+          // Only in local — keep it (might be a new entry not yet saved)
+          merged[key]=local;
+        }else{
+          const localTs=local._ts||0;
+          const remoteTs=remote._ts||1; // no _ts = assume sheet is source of truth
+          merged[key]=localTs>remoteTs?local:remote;
+        }
+      });
+      LOGS=merged;
+    }
+
+    if(data&&data.knee){
+      const sheetKnee=data.knee;
+      const merged={...sheetKnee};
+      Object.keys(KNEE).forEach(key=>{
+        // Knee entries are just numbers — if local has a value and sheet doesn't, keep local
+        if(!(key in sheetKnee)) merged[key]=KNEE[key];
+      });
+      KNEE=merged;
+    }
+
+    // Step 3: Write the merged result back to localStorage and sheet
     localStorage.setItem("scc_backup",JSON.stringify({logs:LOGS,knee:KNEE}));
     setSyncStatus("synced","Synced");
     render();
@@ -494,8 +523,8 @@ async function saveToSheet(){
 }
 
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveToSheet,800);}
-function updateLog(key,data){LOGS[key]={...(LOGS[key]||{}),...data};scheduleSave();render();}
-function updateKnee(dateKey,score){KNEE[dateKey]=score;scheduleSave();renderKnee();}
+function updateLog(key,data){LOGS[key]={...(LOGS[key]||{}),...data,_ts:Date.now()};scheduleSave();render();}
+function updateKnee(dateKey,score){KNEE[dateKey]=score;scheduleSave();renderKnee();renderStatus();renderWeekly();renderMonthly();}
 
 // ════════════ HELPERS ════════════
 function allSessions(){
