@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Training · Ultra Normal</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -975,7 +975,8 @@ function removePhoto(){
   document.getElementById("photoInput").value="";
 }
 
-function generatePreview(){
+async function generatePreview(){
+  try{ await document.fonts.load("900 100px 'DM Sans'"); await document.fonts.ready; }catch(e){}
   const isStory=exportFormat==="story";
   const W=isStory?540:540, H=isStory?960:540;
   const previewCanvas=document.getElementById("previewCanvas");
@@ -1128,19 +1129,27 @@ function drawDataUniversal(ctx,W,H,isStory){
 
   // ── HERO: Weeks to go ──
   if(hasHero){
+    const heroCardH=Math.round((isStory?340:280)*sc);
+    if(!photoMode){
+      ctx.fillStyle="rgba(30,20,14,1)";
+      roundRect(ctx,pad-Math.round(4*sc),cy,contentW+Math.round(8*sc),heroCardH,Math.round(20*sc));
+      ctx.fill();
+    }else{
+      ctx.fillStyle="rgba(10,10,8,0.45)";
+      roundRect(ctx,pad-Math.round(4*sc),cy,contentW+Math.round(8*sc),heroCardH,Math.round(20*sc));
+      ctx.fill();
+    }
     ctx.textAlign="center";
-    const heroSize=isStory?240:(photoMode?200:180);
-    ctx.font=f(heroSize,700);ctx.fillStyle="#D95F2B";
-    cy+=Math.round(heroSize*0.62*sc);
+    const heroSize=isStory?260:230;
+    ctx.font=f(heroSize,900);ctx.fillStyle="#D95F2B";
+    cy+=Math.round(heroSize*0.66*sc);
     ctx.fillText(s.weeksToGo,W/2,cy);
-    ctx.font=f(isStory?22:18,500);ctx.fillStyle=subCol;
-    cy+=Math.round(34*sc);
+    ctx.font=f(isStory?24:20,900);ctx.fillStyle="#F5F2EC";
+    cy+=Math.round(38*sc);
     ctx.fillText(s.weeksToGo===1?"WEEK TO GO":"WEEKS TO GO",W/2,cy);
-    cy+=Math.round((isStory?50:36)*sc);
+    cy+=Math.round((isStory?56:44)*sc);
 
-    ctx.strokeStyle=lineCol;ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(pad,cy);ctx.lineTo(W-pad,cy);ctx.stroke();
-    cy+=Math.round((isStory?40:28)*sc);
+    cy+=Math.round((isStory?32:24)*sc);
   }
 
   // ── METRIC ROW: pct, acwr, week, load, totalmin, avgrpe (small cards, up to 4 per row) ──
@@ -1154,10 +1163,10 @@ function drawDataUniversal(ctx,W,H,isStory){
   if(selectedData.avgrpe) activeMetrics.push({v:s.avgRpe,l:"AVG RPE",col:"#9A7ACA"});
 
   if(activeMetrics.length>0){
-    const perRow=isStory?2:Math.min(4,activeMetrics.length);
+    const perRow=2;
     const rows=Math.ceil(activeMetrics.length/perRow);
-    const cardH=Math.round((isStory?150:100)*sc);
-    const cardGap=Math.round(10*sc);
+    const cardGap=Math.round(16*sc);
+    const cardH=Math.round((isStory?210:170)*sc);
     activeMetrics.forEach((m,i)=>{
       const row=Math.floor(i/perRow);
       const colIdx=i%perRow;
@@ -1166,14 +1175,20 @@ function drawDataUniversal(ctx,W,H,isStory){
       const cx=pad+colIdx*(cw+cardGap);
       const yy=cy+row*(cardH+cardGap);
       ctx.fillStyle=cardBg;
-      roundRect(ctx,cx,yy,cw,cardH,Math.round(10*sc));ctx.fill();
+      roundRect(ctx,cx,yy,cw,cardH,Math.round(14*sc));ctx.fill();
+      // colour accent tab on top
+      ctx.save();
+      roundRect(ctx,cx,yy,cw,cardH,Math.round(14*sc));ctx.clip();
+      ctx.fillStyle=m.col;
+      ctx.fillRect(cx,yy,cw,Math.round(5*sc));
+      ctx.restore();
       ctx.textAlign="center";
-      ctx.font=f(isStory?48:38,700);ctx.fillStyle=m.col;
-      ctx.fillText(m.v,cx+cw/2,yy+Math.round((isStory?70:50)*sc));
-      ctx.font=f(isStory?13:11,500);ctx.fillStyle=subCol;
-      ctx.fillText(m.l,cx+cw/2,yy+Math.round((isStory?100:78)*sc));
+      ctx.font=f(isStory?80:68,900);ctx.fillStyle=m.col;
+      ctx.fillText(m.v,cx+cw/2,yy+Math.round((isStory?100:84)*sc));
+      ctx.font=f(isStory?17:15,700);ctx.fillStyle=photoMode?"#F5F2EC":"#C8C4BA";
+      ctx.fillText(m.l,cx+cw/2,yy+Math.round((isStory?160:134)*sc));
     });
-    cy+=rows*(cardH+cardGap)+Math.round(16*sc);
+    cy+=rows*(cardH+cardGap)+Math.round(20*sc);
   }
 
   // ── STREAK: sessions done/modified/skipped ──
@@ -1335,6 +1350,7 @@ async function doExport(){
   btn.textContent="Generating…";btn.disabled=true;
   status.textContent="Compositing your graphic…";
   try{
+    try{ await document.fonts.load("900 100px 'DM Sans'"); await document.fonts.ready; }catch(e){}
     const isStory=exportFormat==="story";
     const W=1080,H=isStory?1920:1080;
     const canvas=document.createElement("canvas");
