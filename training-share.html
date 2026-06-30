@@ -156,26 +156,62 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
 
 /* ── EXPORT MODAL ── */
 .modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;
+  position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;
   display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(8px);
 }
 .modal-overlay.open{display:flex}
 .modal{
-  background:var(--asphalt);border-radius:16px;padding:28px;
-  width:100%;max-width:400px;border:1px solid var(--border);
+  background:var(--asphalt);border-radius:16px;padding:0;
+  width:100%;max-width:520px;border:1px solid var(--border);overflow:hidden;
 }
-.modal-title{font-size:18px;font-weight:500;margin-bottom:6px}
-.modal-sub{font-size:13px;color:var(--subtle);margin-bottom:24px}
-.export-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.modal-header{padding:24px 24px 0}
+.modal-title{font-size:18px;font-weight:500;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--subtle);margin-bottom:0}
+.modal-body{padding:20px 24px 24px}
+/* Format selector */
+.format-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
 .export-opt{
   background:var(--dark);border:1px solid var(--border);border-radius:10px;
-  padding:16px;cursor:pointer;text-align:center;transition:border-color 0.15s;
+  padding:14px;cursor:pointer;text-align:center;transition:all 0.15s;
 }
 .export-opt:hover{border-color:var(--fire)}
 .export-opt.selected{border-color:var(--fire);background:#1E1410}
-.export-opt-icon{font-size:28px;margin-bottom:8px}
+.export-opt-icon{font-size:24px;margin-bottom:6px}
 .export-opt-label{font-size:13px;font-weight:500;color:var(--dust);margin-bottom:2px}
 .export-opt-size{font-size:11px;color:var(--subtle)}
+/* Data selector */
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.data-opt{
+  background:var(--dark);border:1px solid var(--border);border-radius:8px;
+  padding:10px 12px;cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;gap:8px;
+}
+.data-opt:hover{border-color:var(--fire)}
+.data-opt.selected{border-color:var(--fire);background:#1E1410}
+.data-opt input[type=checkbox]{accent-color:var(--fire);width:14px;height:14px;flex-shrink:0;pointer-events:none}
+.data-opt-label{font-size:12px;color:var(--stone)}
+/* Photo upload */
+.photo-upload-area{
+  border:1.5px dashed var(--border);border-radius:10px;padding:20px;
+  text-align:center;cursor:pointer;transition:border-color 0.15s;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.photo-upload-area:hover{border-color:var(--fire)}
+.photo-upload-area.has-photo{border-style:solid;border-color:var(--canopy)}
+.photo-preview{
+  width:100%;max-height:140px;object-fit:cover;border-radius:6px;
+  display:none;margin-bottom:8px;
+}
+.photo-preview.visible{display:block}
+.photo-upload-icon{font-size:28px;margin-bottom:6px}
+.photo-upload-label{font-size:13px;color:var(--stone);margin-bottom:4px}
+.photo-upload-sub{font-size:11px;color:var(--subtle)}
+/* Preview canvas */
+.preview-wrap{margin-bottom:16px;display:none}
+.preview-wrap.visible{display:block}
+.preview-canvas{width:100%;border-radius:8px;display:block}
+/* Actions */
 .modal-actions{display:flex;gap:8px}
 .modal-actions .btn{flex:1;justify-content:center;padding:10px}
 
@@ -361,24 +397,78 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
 <!-- EXPORT MODAL -->
 <div class="modal-overlay" id="exportModal">
   <div class="modal">
-    <div class="modal-title">Export for Instagram</div>
-    <div class="modal-sub">Choose your format then download.</div>
-    <div class="export-options">
-      <div class="export-opt selected" id="opt-square" onclick="selectFormat('square')">
-        <div class="export-opt-icon">⬛</div>
-        <div class="export-opt-label">Feed Post</div>
-        <div class="export-opt-size">1080 × 1080</div>
-      </div>
-      <div class="export-opt" id="opt-story" onclick="selectFormat('story')">
-        <div class="export-opt-icon">📱</div>
-        <div class="export-opt-label">Story</div>
-        <div class="export-opt-size">1080 × 1920</div>
-      </div>
+    <div class="modal-header">
+      <div class="modal-title">Export for Instagram</div>
+      <div class="modal-sub" style="margin-bottom:0">Design your graphic, add a photo, download.</div>
     </div>
-    <div id="exportStatus" style="font-size:12px;color:var(--subtle);margin-bottom:16px;min-height:18px"></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeExportModal()">Cancel</button>
-      <button class="btn btn-fire" id="downloadBtn" onclick="doExport()"><span>↓</span> Download image</button>
+    <div class="modal-body">
+
+      <!-- FORMAT -->
+      <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px">Format</div>
+      <div class="format-row">
+        <div class="export-opt selected" id="opt-square" onclick="selectFormat('square')">
+          <div class="export-opt-icon">⬛</div>
+          <div class="export-opt-label">Feed Post</div>
+          <div class="export-opt-size">1080 × 1080</div>
+        </div>
+        <div class="export-opt" id="opt-story" onclick="selectFormat('story')">
+          <div class="export-opt-icon">📱</div>
+          <div class="export-opt-label">Story</div>
+          <div class="export-opt-size">1080 × 1920</div>
+        </div>
+      </div>
+
+      <!-- DATA TO SHOW -->
+      <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px">Data to show</div>
+      <div class="data-grid">
+        <div class="data-opt selected" id="dopt-days" onclick="toggleData('days')">
+          <input type="checkbox" checked id="chk-days"><div class="data-opt-label">Days to race</div>
+        </div>
+        <div class="data-opt selected" id="dopt-pct" onclick="toggleData('pct')">
+          <input type="checkbox" checked id="chk-pct"><div class="data-opt-label">Plan completion %</div>
+        </div>
+        <div class="data-opt selected" id="dopt-acwr" onclick="toggleData('acwr')">
+          <input type="checkbox" checked id="chk-acwr"><div class="data-opt-label">ACWR</div>
+        </div>
+        <div class="data-opt selected" id="dopt-load" onclick="toggleData('load')">
+          <input type="checkbox" checked id="chk-load"><div class="data-opt-label">Training load</div>
+        </div>
+        <div class="data-opt selected" id="dopt-week" onclick="toggleData('week')">
+          <input type="checkbox" checked id="chk-week"><div class="data-opt-label">Current week</div>
+        </div>
+        <div class="data-opt selected" id="dopt-bars" onclick="toggleData('bars')">
+          <input type="checkbox" checked id="chk-bars"><div class="data-opt-label">Week progress bars</div>
+        </div>
+      </div>
+
+      <!-- PHOTO UPLOAD -->
+      <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px">Background photo <span style="color:var(--subtle);font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></div>
+      <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
+        <img class="photo-preview" id="photoPreview" src="" alt="">
+        <div id="photoUploadPlaceholder">
+          <div class="photo-upload-icon">🏔</div>
+          <div class="photo-upload-label">Tap to upload a photo</div>
+          <div class="photo-upload-sub">JPG or PNG · Your run, trail, or training shot</div>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+      </div>
+      <div id="photoRemoveRow" style="display:none;margin-bottom:12px">
+        <button class="btn btn-outline" style="font-size:11px;padding:5px 10px" onclick="removePhoto()">✕ Remove photo</button>
+        <span style="font-size:11px;color:var(--subtle);margin-left:8px">Duotone treatment will be applied automatically</span>
+      </div>
+
+      <!-- LIVE PREVIEW -->
+      <div class="preview-wrap" id="previewWrap">
+        <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px">Preview</div>
+        <canvas class="preview-canvas" id="previewCanvas"></canvas>
+      </div>
+
+      <div id="exportStatus" style="font-size:12px;color:var(--subtle);margin-bottom:12px;min-height:16px"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeExportModal()">Cancel</button>
+        <button class="btn btn-outline" id="previewBtn" onclick="generatePreview()">Preview</button>
+        <button class="btn btn-fire" id="downloadBtn" onclick="doExport()">↓ Download</button>
+      </div>
     </div>
   </div>
 </div>
@@ -753,55 +843,353 @@ function renderACWRChart(acwr){
 }
 
 // ════════════ EXPORT ════════════
+// ════════════ EXPORT STATE ════════════
+let uploadedPhoto=null;
+let selectedData={days:true,pct:true,acwr:true,load:true,week:true,bars:true};
+
 function openExportModal(){document.getElementById("exportModal").classList.add("open");}
 function closeExportModal(){document.getElementById("exportModal").classList.remove("open");}
+
 function selectFormat(f){
   exportFormat=f;
   document.getElementById("opt-square").classList.toggle("selected",f==="square");
   document.getElementById("opt-story").classList.toggle("selected",f==="story");
+  if(uploadedPhoto) generatePreview();
+}
+
+function toggleData(key){
+  selectedData[key]=!selectedData[key];
+  const opt=document.getElementById("dopt-"+key);
+  const chk=document.getElementById("chk-"+key);
+  opt.classList.toggle("selected",selectedData[key]);
+  chk.checked=selectedData[key];
+  if(uploadedPhoto||document.getElementById("previewWrap").classList.contains("visible")) generatePreview();
+}
+
+function handlePhotoUpload(input){
+  if(!input.files||!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    uploadedPhoto=new Image();
+    uploadedPhoto.onload=function(){
+      const preview=document.getElementById("photoPreview");
+      preview.src=e.target.result;
+      preview.classList.add("visible");
+      document.getElementById("photoUploadPlaceholder").style.display="none";
+      document.getElementById("photoUploadArea").classList.add("has-photo");
+      document.getElementById("photoRemoveRow").style.display="flex";
+      document.getElementById("photoRemoveRow").style.alignItems="center";
+      generatePreview();
+    };
+    uploadedPhoto.src=e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function removePhoto(){
+  uploadedPhoto=null;
+  const preview=document.getElementById("photoPreview");
+  preview.src="";preview.classList.remove("visible");
+  document.getElementById("photoUploadPlaceholder").style.display="block";
+  document.getElementById("photoUploadArea").classList.remove("has-photo");
+  document.getElementById("photoRemoveRow").style.display="none";
+  document.getElementById("previewWrap").classList.remove("visible");
+  document.getElementById("photoInput").value="";
+}
+
+function generatePreview(){
+  const isStory=exportFormat==="story";
+  const W=isStory?540:540, H=isStory?960:540;
+  const previewCanvas=document.getElementById("previewCanvas");
+  previewCanvas.width=W; previewCanvas.height=H;
+  const ctx=previewCanvas.getContext("2d");
+  drawGraphic(ctx,W,H,isStory,true);
+  document.getElementById("previewWrap").classList.add("visible");
+}
+
+// ── Core duotone + data renderer ──────────────────────────────────────────────
+function drawGraphic(ctx,W,H,isStory,isPreview){
+  // 1. Dark background
+  ctx.fillStyle="#0E0E0C";
+  ctx.fillRect(0,0,W,H);
+
+  // 2. Photo + duotone
+  if(uploadedPhoto){
+    // Draw photo scaled/cropped to fill canvas
+    const imgAspect=uploadedPhoto.width/uploadedPhoto.height;
+    const canvasAspect=W/H;
+    let sx=0,sy=0,sw=uploadedPhoto.width,sh=uploadedPhoto.height;
+    if(imgAspect>canvasAspect){
+      sw=uploadedPhoto.height*canvasAspect;
+      sx=(uploadedPhoto.width-sw)/2;
+    }else{
+      sh=uploadedPhoto.width/canvasAspect;
+      sy=(uploadedPhoto.height-sh)/2;
+    }
+
+    // Temp canvas for duotone
+    const tmp=document.createElement("canvas");
+    tmp.width=W;tmp.height=H;
+    const tc=tmp.getContext("2d");
+    tc.drawImage(uploadedPhoto,sx,sy,sw,sh,0,0,W,H);
+
+    // Apply duotone: shadows → asphalt (#1A1A18), highlights → fire (#D95F2B)
+    const imageData=tc.getImageData(0,0,W,H);
+    const data=imageData.data;
+    const shadow=[26,26,24];   // #1A1A18
+    const highlight=[217,95,43]; // #D95F2B
+    for(let i=0;i<data.length;i+=4){
+      const lum=(data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114)/255;
+      data[i]  =Math.round(shadow[0]+(highlight[0]-shadow[0])*lum);
+      data[i+1]=Math.round(shadow[1]+(highlight[1]-shadow[1])*lum);
+      data[i+2]=Math.round(shadow[2]+(highlight[2]-shadow[2])*lum);
+    }
+    tc.putImageData(imageData,0,0);
+    ctx.drawImage(tmp,0,0);
+
+    // 3. Gradient overlays for legibility
+    // Bottom gradient — dark
+    const gradBottom=ctx.createLinearGradient(0,H*0.35,0,H);
+    gradBottom.addColorStop(0,"rgba(10,10,8,0)");
+    gradBottom.addColorStop(0.5,"rgba(10,10,8,0.75)");
+    gradBottom.addColorStop(1,"rgba(10,10,8,0.97)");
+    ctx.fillStyle=gradBottom;ctx.fillRect(0,0,W,H);
+
+    // Top gradient — subtle dark for logo
+    const gradTop=ctx.createLinearGradient(0,0,0,H*0.2);
+    gradTop.addColorStop(0,"rgba(10,10,8,0.72)");
+    gradTop.addColorStop(1,"rgba(10,10,8,0)");
+    ctx.fillStyle=gradTop;ctx.fillRect(0,0,W,H);
+  }
+
+  // 4. Draw data
+  if(isStory) drawDataStory(ctx,W,H);
+  else drawDataSquare(ctx,W,H);
+}
+
+// ── Shared data getters ──────────────────────────────────────────────────────
+function getStats(){
+  const sessions=allSessions();
+  const active=sessions.filter(s=>s.type!=="rest");
+  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
+  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+  const total=active.length;
+  const pct=total?Math.round((done+mod)/total*100):0;
+  const raceDate=new Date("2026-09-12");
+  const daysToRace=Math.max(0,Math.ceil((raceDate-new Date())/(1000*60*60*24)));
+  let totalActual=0,totalLoad=0;
+  for(let w=1;w<=12;w++){totalActual+=weekActual(w);totalLoad+=weeklyLoad(w);}
+  const acwr=calcACWR();
+  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
+  const acwrVal=latest?.ratio;
+  let currentWeek=1;
+  for(let w=1;w<=12;w++){if(sessions.filter(s=>s.weekNum===w&&s.type!=="rest").some(s=>LOGS[s.key]?.status))currentWeek=w;}
+  return{done,mod,total,pct,daysToRace,totalActual,totalLoad,acwrVal,currentWeek};
+}
+
+// ── Square layout ─────────────────────────────────────────────────────────────
+function drawDataSquare(ctx,W,H){
+  const s=getStats();
+  const sc=W/1080; // scale factor
+  const f=(sz,wt)=>`${wt||400} ${Math.round(sz*sc)}px 'DM Sans',sans-serif`;
+
+  // Fire accent bars
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,Math.round(5*sc));
+
+  // Logo
+  ctx.textAlign="left";
+  ctx.font=f(22,500);ctx.fillStyle="#C8C4BA";
+  const ux=Math.round(60*sc),uy=Math.round(64*sc);
+  ctx.fillText("ULTRA",ux,uy);
+  ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",ux+ctx.measureText("ULTRA").width,uy);
+  ctx.font=f(14,300);ctx.fillStyle="#6B6862";
+  ctx.fillText("Surf Coast Century 50km · 12 Sep 2026",ux,Math.round(88*sc));
+
+  // DAYS TO RACE — hero
+  if(selectedData.days){
+    ctx.textAlign="center";
+    ctx.font=f(uploadedPhoto?220:200,700);
+    ctx.fillStyle="#D95F2B";
+    ctx.fillText(s.daysToRace,W/2,Math.round((uploadedPhoto?340:320)*sc));
+    ctx.font=f(18,500);ctx.fillStyle=uploadedPhoto?"rgba(245,242,236,0.7)":"#6B6862";
+    ctx.fillText("DAYS TO RACE",W/2,Math.round((uploadedPhoto?372:352)*sc));
+  }
+
+  // Metrics row
+  const metrics=[];
+  if(selectedData.pct) metrics.push({v:`${s.pct}%`,l:"COMPLETE"});
+  if(selectedData.week) metrics.push({v:`W${s.currentWeek}`,l:"WEEK"});
+  if(selectedData.load) metrics.push({v:s.totalLoad>0?s.totalLoad.toLocaleString():"—",l:"LOAD AU",col:"#4A7C59"});
+  if(selectedData.acwr) metrics.push({v:s.acwrVal?s.acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(s.acwrVal)});
+
+  if(metrics.length>0){
+    const mY=Math.round((selectedData.days?420:300)*sc);
+    const mW=W/metrics.length;
+    metrics.forEach((m,i)=>{
+      const mx=i*mW+mW/2;
+      // Card bg
+      if(!uploadedPhoto){
+        ctx.fillStyle="rgba(26,26,24,0.9)";
+        roundRect(ctx,i*mW+Math.round(8*sc),mY-Math.round(10*sc),mW-Math.round(16*sc),Math.round(100*sc),Math.round(10*sc));
+        ctx.fill();
+      }else{
+        // Glass pill
+        ctx.fillStyle="rgba(10,10,8,0.55)";
+        roundRect(ctx,i*mW+Math.round(8*sc),mY-Math.round(10*sc),mW-Math.round(16*sc),Math.round(100*sc),Math.round(10*sc));
+        ctx.fill();
+      }
+      ctx.textAlign="center";
+      ctx.font=f(42,700);ctx.fillStyle=m.col||"#F5F2EC";
+      ctx.fillText(m.v,mx,mY+Math.round(50*sc));
+      ctx.font=f(11,500);ctx.fillStyle="#6B6862";
+      ctx.fillText(m.l,mx,mY+Math.round(78*sc));
+    });
+  }
+
+  // Progress bars
+  if(selectedData.bars){
+    const barY=Math.round(560*sc);
+    const barH=Math.round(6*sc);
+    const barGap=Math.round(34*sc);
+    const barX=Math.round(60*sc);
+    const barW=W-Math.round(120*sc)-Math.round(60*sc);
+    ctx.font=f(13,500);ctx.fillStyle="#F5F2EC";ctx.textAlign="left";
+    ctx.fillText("WEEKLY PROGRESS",barX,barY-Math.round(12*sc));
+    for(let w=1;w<=12;w++){
+      const p=weekPrescribed(w),a=weekActual(w);
+      const p2=p?Math.min(100,Math.round(a/p*100)):0;
+      const col=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
+      const y=barY+(w-1)*barGap;
+      ctx.fillStyle=uploadedPhoto?"rgba(255,255,255,0.12)":"#1A1A18";
+      ctx.fillRect(barX+Math.round(36*sc),y,barW,barH);
+      if(p2>0){ctx.fillStyle=col;ctx.fillRect(barX+Math.round(36*sc),y,barW*(p2/100),barH);}
+      ctx.fillStyle="#555550";ctx.font=f(10,400);ctx.textAlign="left";
+      ctx.fillText("W"+w,barX,y+Math.round(6*sc));
+      if(p2>0){ctx.fillStyle=col;ctx.textAlign="right";ctx.fillText(p2+"%",W-Math.round(55*sc),y+Math.round(6*sc));ctx.textAlign="left";}
+    }
+  }
+
+  // Footer
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-Math.round(5*sc),W,Math.round(5*sc));
+  ctx.fillStyle="#444440";ctx.font=f(12,400);ctx.textAlign="right";
+  ctx.fillText("ultranormal.github.io",W-Math.round(40*sc),H-Math.round(16*sc));
+}
+
+// ── Story layout ─────────────────────────────────────────────────────────────
+function drawDataStory(ctx,W,H){
+  const s=getStats();
+  const sc=W/1080;
+  const f=(sz,wt)=>`${wt||400} ${Math.round(sz*sc)}px 'DM Sans',sans-serif`;
+
+  // Accent bars
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,Math.round(7*sc));
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-Math.round(7*sc),W,Math.round(7*sc));
+
+  // Logo
+  ctx.textAlign="left";
+  ctx.font=f(26,500);ctx.fillStyle="#C8C4BA";
+  const ux=Math.round(56*sc),uy=Math.round(80*sc);
+  ctx.fillText("ULTRA",ux,uy);
+  ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",ux+ctx.measureText("ULTRA").width,uy);
+  ctx.font=f(15,300);ctx.fillStyle="#6B6862";ctx.fillText("Training Journal",ux,Math.round(110*sc));
+
+  // Race date
+  ctx.textAlign="center";
+  ctx.font=f(64,700);ctx.fillStyle="#F5F2EC";ctx.fillText("12 SEP 2026",W/2,Math.round(220*sc));
+  ctx.font=f(16,300);ctx.fillStyle="#6B6862";ctx.fillText("Surf Coast Century · 50km",W/2,Math.round(252*sc));
+
+  // Divider
+  ctx.strokeStyle=uploadedPhoto?"rgba(255,255,255,0.15)":"#2A2A28";ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(Math.round(56*sc),Math.round(274*sc));ctx.lineTo(W-Math.round(56*sc),Math.round(274*sc));ctx.stroke();
+
+  // DAYS — giant
+  if(selectedData.days){
+    ctx.textAlign="center";
+    ctx.font=f(260,700);ctx.fillStyle="#D95F2B";
+    ctx.fillText(s.daysToRace,W/2,Math.round(600*sc));
+    ctx.font=f(22,500);ctx.fillStyle=uploadedPhoto?"rgba(200,196,186,0.8)":"#6B6862";
+    ctx.fillText("DAYS TO RACE",W/2,Math.round(646*sc));
+  }
+
+  ctx.strokeStyle=uploadedPhoto?"rgba(255,255,255,0.1)":"#2A2A28";ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(Math.round(56*sc),Math.round(680*sc));ctx.lineTo(W-Math.round(56*sc),Math.round(680*sc));ctx.stroke();
+
+  // 2×2 grid
+  const gridMetrics=[];
+  if(selectedData.pct) gridMetrics.push({v:`${s.pct}%`,l:"PLAN COMPLETE",col:"#F5F2EC"});
+  if(selectedData.week) gridMetrics.push({v:`W${s.currentWeek}/12`,l:"CURRENT WEEK",col:"#F5F2EC"});
+  if(selectedData.load) gridMetrics.push({v:s.totalLoad>0?s.totalLoad.toLocaleString():"—",l:"TOTAL LOAD AU",col:"#4A7C59"});
+  if(selectedData.acwr) gridMetrics.push({v:s.acwrVal?s.acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(s.acwrVal)});
+
+  if(gridMetrics.length>0){
+    const gY=Math.round(720*sc);
+    const cols=Math.min(2,gridMetrics.length);
+    const gW=W/cols;
+    const rowH=Math.round(180*sc);
+    gridMetrics.forEach((m,i)=>{
+      const col=i%cols,row=Math.floor(i/cols);
+      const gx=col*gW+gW/2;
+      const gy=gY+row*rowH;
+      if(uploadedPhoto){
+        ctx.fillStyle="rgba(10,10,8,0.45)";
+        roundRect(ctx,col*gW+Math.round(10*sc),gy,gW-Math.round(20*sc),rowH-Math.round(16*sc),Math.round(12*sc));
+        ctx.fill();
+      }
+      ctx.textAlign="center";
+      ctx.font=f(64,700);ctx.fillStyle=m.col;
+      ctx.fillText(m.v,gx,gy+Math.round(80*sc));
+      ctx.font=f(14,500);ctx.fillStyle="#6B6862";
+      ctx.fillText(m.l,gx,gy+Math.round(112*sc));
+    });
+  }
+
+  // Progress bars
+  if(selectedData.bars){
+    const bY=Math.round(1340*sc);
+    const bH=Math.round(8*sc);
+    const bGap=Math.round(42*sc);
+    const bX=Math.round(56*sc);
+    const bW=W-Math.round(112*sc)-Math.round(70*sc);
+    ctx.font=f(18,500);ctx.fillStyle="#F5F2EC";ctx.textAlign="left";
+    ctx.fillText("WEEKLY PROGRESS",bX,bY-Math.round(16*sc));
+    for(let w=1;w<=12;w++){
+      const p=weekPrescribed(w),a=weekActual(w);
+      const p2=p?Math.min(100,Math.round(a/p*100)):0;
+      const col=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
+      const y=bY+(w-1)*bGap;
+      ctx.fillStyle=uploadedPhoto?"rgba(255,255,255,0.1)":"#1A1A18";
+      ctx.fillRect(bX+Math.round(44*sc),y,bW,bH);
+      if(p2>0){ctx.fillStyle=col;ctx.fillRect(bX+Math.round(44*sc),y,bW*(p2/100),bH);}
+      ctx.fillStyle="#555550";ctx.font=f(13,400);ctx.textAlign="left";ctx.fillText("W"+w,bX,y+Math.round(7*sc));
+      if(p2>0){ctx.fillStyle=col;ctx.textAlign="right";ctx.fillText(p2+"%",W-Math.round(56*sc),y+Math.round(7*sc));ctx.textAlign="left";}
+    }
+  }
+
+  ctx.fillStyle="#444440";ctx.font=f(15,400);ctx.textAlign="center";
+  ctx.fillText(`${s.totalLoad.toLocaleString()} AU load · ${s.done+s.mod} sessions done`,W/2,H-Math.round(28*sc));
 }
 
 async function doExport(){
   const btn=document.getElementById("downloadBtn");
   const status=document.getElementById("exportStatus");
-  btn.textContent="Generating…";
-  btn.disabled=true;
-  status.textContent="Rendering your training data…";
-
+  btn.textContent="Generating…";btn.disabled=true;
+  status.textContent="Compositing your graphic…";
   try{
     const isStory=exportFormat==="story";
-    const targetW=isStory?1080:1080;
-    const targetH=isStory?1920:1080;
-
-    // Build export canvas manually for crisp output
+    const W=1080,H=isStory?1920:1080;
     const canvas=document.createElement("canvas");
-    canvas.width=targetW;
-    canvas.height=targetH;
+    canvas.width=W;canvas.height=H;
     const ctx=canvas.getContext("2d");
-
-    // Background
-    ctx.fillStyle="#0E0E0C";
-    ctx.fillRect(0,0,targetW,targetH);
-
-    if(isStory){
-      drawStory(ctx,targetW,targetH);
-    }else{
-      drawSquare(ctx,targetW,targetH);
-    }
-
-    // Download
+    drawGraphic(ctx,W,H,isStory,false);
     const link=document.createElement("a");
-    link.download=`ultranormal-training-${exportFormat}-${new Date().toISOString().slice(0,10)}.png`;
+    link.download=`ultranormal-${exportFormat}-${new Date().toISOString().slice(0,10)}.png`;
     link.href=canvas.toDataURL("image/png",1.0);
     link.click();
-
-    status.textContent="Downloaded! Open in Photos to share to Instagram.";
-    btn.textContent="↓ Download image";
-    btn.disabled=false;
+    status.textContent="✓ Downloaded! Open in Photos to share.";
+    btn.textContent="↓ Download";btn.disabled=false;
   }catch(e){
     status.textContent="Export failed — try again.";
-    btn.textContent="↓ Download image";
-    btn.disabled=false;
+    btn.textContent="↓ Download";btn.disabled=false;
   }
 }
 
@@ -809,159 +1197,6 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
   ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
   ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
-}
-
-function drawSquare(ctx,W,H){
-  const sessions=allSessions();
-  const active=sessions.filter(s=>s.type!=="rest");
-  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
-  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
-  const total=active.length;
-  const pct=total?Math.round((done+mod)/total*100):0;
-  const raceDate=new Date("2026-09-12");
-  const daysToRace=Math.max(0,Math.ceil((raceDate-new Date())/(1000*60*60*24)));
-  let totalActual=0,totalLoad=0;
-  for(let w=1;w<=12;w++){totalActual+=weekActual(w);totalLoad+=weeklyLoad(w);}
-  const acwr=calcACWR();
-  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
-  const acwrVal=latest?.ratio;
-  let currentWeek=1;
-  for(let w=1;w<=12;w++){if(sessions.filter(s=>s.weekNum===w&&s.type!=="rest").some(s=>LOGS[s.key]?.status))currentWeek=w;}
-
-  // Fire accent bar top
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,6);
-
-  // Logo
-  ctx.fillStyle="#C8C4BA";ctx.font="500 22px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("ULTRA",72,72);
-  ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",72+ctx.measureText("ULTRA").width,72);
-
-  // Race line
-  ctx.fillStyle="#6B6862";ctx.font="300 16px 'DM Sans',sans-serif";ctx.fillText("Surf Coast Century 50km · 12 Sep 2026",72,100);
-
-  // BIG number — days to race
-  ctx.fillStyle="#D95F2B";ctx.font="700 200px 'DM Sans',sans-serif";ctx.textAlign="center";ctx.fillText(daysToRace,W/2,380);
-  ctx.fillStyle="#6B6862";ctx.font="500 22px 'DM Sans',sans-serif";ctx.fillText("DAYS TO RACE",W/2,420);
-
-  // Divider
-  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(72,460);ctx.lineTo(W-72,460);ctx.stroke();
-
-  // 4 metric boxes
-  const metrics=[
-    {v:`${pct}%`,l:"Complete"},
-    {v:`W${currentWeek}`,l:"Week"},
-    {v:totalActual.toLocaleString(),l:"Min trained"},
-    {v:acwrVal?acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(acwrVal)},
-  ];
-  const boxW=(W-144-36)/4, boxH=160, bx=72, by=490;
-  metrics.forEach((m,i)=>{
-    const x=bx+i*(boxW+12);
-    ctx.fillStyle="#1A1A18";
-    roundRect(ctx,x,by,boxW,boxH,12);ctx.fill();
-    ctx.fillStyle=m.col||"#F5F2EC";
-    ctx.font="700 44px 'DM Sans',sans-serif";ctx.textAlign="center";
-    ctx.fillText(m.v,x+boxW/2,by+70);
-    ctx.fillStyle="#6B6862";ctx.font="500 14px 'DM Sans',sans-serif";
-    ctx.fillText(m.l.toUpperCase(),x+boxW/2,by+110);
-  });
-
-  // Week progress bars
-  ctx.textAlign="left";
-  const barStartY=700,barH=8,barGap=22,barX=72,barW=W-144-80;
-  ctx.fillStyle="#F5F2EC";ctx.font="500 18px 'DM Sans',sans-serif";ctx.fillText("WEEKLY PROGRESS",72,690);
-  for(let w=1;w<=12;w++){
-    const p=weekPrescribed(w),a=weekActual(w);
-    const p2=p?Math.min(100,Math.round(a/p*100)):0;
-    const col=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
-    const y=barStartY+(w-1)*barGap;
-    ctx.fillStyle="#1A1A18";ctx.fillRect(barX+30,y,barW,barH);
-    if(p2>0){ctx.fillStyle=col;ctx.fillRect(barX+30,y,barW*(p2/100),barH);}
-    ctx.fillStyle="#555550";ctx.font="400 12px 'DM Sans',sans-serif";ctx.fillText("W"+w,barX,y+8);
-    if(p2>0){ctx.fillStyle=col;ctx.textAlign="right";ctx.fillText(p2+"%",W-72,y+8);ctx.textAlign="left";}
-  }
-
-  // Total load
-  ctx.fillStyle="#2A2A28";ctx.fillRect(72,985,W-144,1);
-  ctx.fillStyle="#6B6862";ctx.font="300 16px 'DM Sans',sans-serif";ctx.textAlign="center";
-  ctx.fillText(`Total training load: ${totalLoad.toLocaleString()} AU  ·  ${done+mod} sessions completed`,W/2,1020);
-
-  // Branding footer
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-6,W,6);
-  ctx.fillStyle="#6B6862";ctx.font="400 14px 'DM Sans',sans-serif";ctx.textAlign="right";
-  ctx.fillText("ultranormal.github.io",W-40,H-24);
-}
-
-function drawStory(ctx,W,H){
-  const sessions=allSessions();
-  const active=sessions.filter(s=>s.type!=="rest");
-  const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
-  const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
-  const total=active.length;
-  const pct=total?Math.round((done+mod)/total*100):0;
-  const raceDate=new Date("2026-09-12");
-  const daysToRace=Math.max(0,Math.ceil((raceDate-new Date())/(1000*60*60*24)));
-  let totalActual=0,totalLoad=0;
-  for(let w=1;w<=12;w++){totalActual+=weekActual(w);totalLoad+=weeklyLoad(w);}
-  const acwr=calcACWR();
-  const latest=[...acwr].reverse().find(d=>d.ratio!==null);
-  const acwrVal=latest?.ratio;
-  let currentWeek=1;
-  for(let w=1;w<=12;w++){if(sessions.filter(s=>s.weekNum===w&&s.type!=="rest").some(s=>LOGS[s.key]?.status))currentWeek=w;}
-
-  // Fire bars
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,8);
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-8,W,8);
-
-  // Logo
-  ctx.fillStyle="#C8C4BA";ctx.font="500 28px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("ULTRA",60,90);
-  ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",60+ctx.measureText("ULTRA").width+2,90);
-  ctx.fillStyle="#6B6862";ctx.font="300 18px 'DM Sans',sans-serif";ctx.fillText("Training Journal",60,124);
-
-  // Race heading
-  ctx.fillStyle="#F5F2EC";ctx.font="700 88px 'DM Sans',sans-serif";ctx.textAlign="center";ctx.fillText("12 SEP",W/2,260);
-  ctx.fillStyle="#D95F2B";ctx.font="700 40px 'DM Sans',sans-serif";ctx.fillText("2026",W/2,314);
-  ctx.fillStyle="#6B6862";ctx.font="300 20px 'DM Sans',sans-serif";ctx.fillText("Surf Coast Century 50km",W/2,358);
-
-  // Divider
-  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,390);ctx.lineTo(W-60,390);ctx.stroke();
-
-  // Days to race — giant
-  ctx.fillStyle="#D95F2B";ctx.font="700 280px 'DM Sans',sans-serif";ctx.textAlign="center";ctx.fillText(daysToRace,W/2,700);
-  ctx.fillStyle="#6B6862";ctx.font="500 28px 'DM Sans',sans-serif";ctx.fillText("DAYS TO RACE",W/2,750);
-
-  // 2×2 metrics
-  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,790);ctx.lineTo(W-60,790);ctx.stroke();
-  const mets=[
-    {v:`${pct}%`,l:"PLAN COMPLETE",col:"#F5F2EC"},{v:`W${currentWeek}/12`,l:"CURRENT WEEK",col:"#F5F2EC"},
-    {v:totalActual+"",l:"MIN TRAINED",col:"#4A7C59"},{v:acwrVal?acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(acwrVal)},
-  ];
-  mets.forEach((m,i)=>{
-    const col2=i%2===0?60:W/2+20;
-    const row=Math.floor(i/2);
-    const y=840+row*200;
-    ctx.fillStyle=m.col;ctx.font="700 72px 'DM Sans',sans-serif";ctx.textAlign=i%2===0?"left":"right";
-    ctx.fillText(m.v,i%2===0?col2:W-col2,y);
-    ctx.fillStyle="#6B6862";ctx.font="500 18px 'DM Sans',sans-serif";
-    ctx.fillText(m.l,i%2===0?col2:W-col2,y+44);
-  });
-
-  // Progress bars
-  ctx.strokeStyle="#2A2A28";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,1260);ctx.lineTo(W-60,1260);ctx.stroke();
-  ctx.fillStyle="#F5F2EC";ctx.font="500 24px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("WEEKLY PROGRESS",60,1308);
-  const bStartY=1330,bH=10,bGap=38,bX=60,bW=W-120-80;
-  for(let w=1;w<=12;w++){
-    const p=weekPrescribed(w),a=weekActual(w);
-    const p2=p?Math.min(100,Math.round(a/p*100)):0;
-    const col2=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
-    const y=bStartY+(w-1)*bGap;
-    ctx.fillStyle="#1E1E1C";ctx.fillRect(bX+48,y,bW,bH);
-    if(p2>0){ctx.fillStyle=col2;ctx.fillRect(bX+48,y,bW*(p2/100),bH);}
-    ctx.fillStyle="#555550";ctx.font="400 18px 'DM Sans',sans-serif";ctx.textAlign="left";ctx.fillText("W"+w,bX,y+9);
-    if(p2>0){ctx.fillStyle=col2;ctx.textAlign="right";ctx.fillText(p2+"%",W-60,y+9);ctx.textAlign="left";}
-  }
-
-  // Footer
-  ctx.fillStyle="#6B6862";ctx.font="400 18px 'DM Sans',sans-serif";ctx.textAlign="center";
-  ctx.fillText(`${totalLoad.toLocaleString()} AU total load · ${done+mod} sessions done`,W/2,H-36);
 }
 
 // ════════════ INIT ════════════
