@@ -192,6 +192,13 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
 .data-opt.selected{border-color:var(--fire);background:#1E1410}
 .data-opt input[type=checkbox]{accent-color:var(--fire);width:14px;height:14px;flex-shrink:0;pointer-events:none}
 .data-opt-label{font-size:12px;color:var(--stone)}
+/* Palette selector */
+.palette-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+.palette-opt{cursor:pointer;text-align:center;border-radius:8px;padding:4px;border:2px solid transparent;transition:border-color 0.15s}
+.palette-opt:hover{border-color:var(--border)}
+.palette-opt.selected{border-color:var(--fire)}
+.palette-swatch{width:100%;aspect-ratio:1;border-radius:6px;margin-bottom:5px}
+.palette-label{font-size:10px;color:var(--subtle)}
 /* Photo upload */
 .photo-upload-area{
   border:1.5px dashed var(--border);border-radius:10px;padding:20px;
@@ -428,8 +435,8 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
       <!-- DATA TO SHOW -->
       <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px">Data to show</div>
       <div class="data-grid">
-        <div class="data-opt selected" id="dopt-days" onclick="toggleData('days')">
-          <input type="checkbox" checked id="chk-days"><div class="data-opt-label">Days to race</div>
+        <div class="data-opt selected" id="dopt-weeks" onclick="toggleData('weeks')">
+          <input type="checkbox" checked id="chk-weeks"><div class="data-opt-label">Weeks to go</div>
         </div>
         <div class="data-opt selected" id="dopt-pct" onclick="toggleData('pct')">
           <input type="checkbox" checked id="chk-pct"><div class="data-opt-label">Plan completion %</div>
@@ -437,14 +444,61 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
         <div class="data-opt selected" id="dopt-acwr" onclick="toggleData('acwr')">
           <input type="checkbox" checked id="chk-acwr"><div class="data-opt-label">ACWR</div>
         </div>
-        <div class="data-opt selected" id="dopt-load" onclick="toggleData('load')">
-          <input type="checkbox" checked id="chk-load"><div class="data-opt-label">Training load</div>
+        <div class="data-opt selected" id="dopt-thisweek" onclick="toggleData('thisweek')">
+          <input type="checkbox" checked id="chk-thisweek"><div class="data-opt-label">This week's sessions</div>
         </div>
-        <div class="data-opt selected" id="dopt-week" onclick="toggleData('week')">
-          <input type="checkbox" checked id="chk-week"><div class="data-opt-label">Current week</div>
+        <div class="data-opt selected" id="dopt-knee" onclick="toggleData('knee')">
+          <input type="checkbox" checked id="chk-knee"><div class="data-opt-label">Knee pain tracker</div>
         </div>
         <div class="data-opt selected" id="dopt-bars" onclick="toggleData('bars')">
           <input type="checkbox" checked id="chk-bars"><div class="data-opt-label">Week progress bars</div>
+        </div>
+        <div class="data-opt" id="dopt-lastsession" onclick="toggleData('lastsession')">
+          <input type="checkbox" id="chk-lastsession"><div class="data-opt-label">Last session</div>
+        </div>
+        <div class="data-opt" id="dopt-load" onclick="toggleData('load')">
+          <input type="checkbox" id="chk-load"><div class="data-opt-label">Training load</div>
+        </div>
+        <div class="data-opt" id="dopt-week" onclick="toggleData('week')">
+          <input type="checkbox" id="chk-week"><div class="data-opt-label">Current week number</div>
+        </div>
+        <div class="data-opt" id="dopt-totalmin" onclick="toggleData('totalmin')">
+          <input type="checkbox" id="chk-totalmin"><div class="data-opt-label">Total minutes trained</div>
+        </div>
+        <div class="data-opt" id="dopt-streak" onclick="toggleData('streak')">
+          <input type="checkbox" id="chk-streak"><div class="data-opt-label">Sessions done / skipped</div>
+        </div>
+        <div class="data-opt" id="dopt-avgrpe" onclick="toggleData('avgrpe')">
+          <input type="checkbox" id="chk-avgrpe"><div class="data-opt-label">Average RPE</div>
+        </div>
+      </div>
+
+      <!-- COLOUR GRADE -->
+      <div style="font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;margin-top:4px">Colour grade <span style="color:var(--subtle);font-weight:300;text-transform:none;letter-spacing:0">(applies to photo)</span></div>
+      <div class="palette-grid" id="paletteGrid">
+        <div class="palette-opt selected" id="popt-fire" onclick="selectPalette('fire')">
+          <div class="palette-swatch" style="background:linear-gradient(135deg,#1A1A18,#D95F2B)"></div>
+          <div class="palette-label">Fire</div>
+        </div>
+        <div class="palette-opt" id="popt-canopy" onclick="selectPalette('canopy')">
+          <div class="palette-swatch" style="background:linear-gradient(135deg,#13201A,#4A7C59)"></div>
+          <div class="palette-label">Canopy</div>
+        </div>
+        <div class="palette-opt" id="popt-dusk" onclick="selectPalette('dusk')">
+          <div class="palette-swatch" style="background:linear-gradient(135deg,#15151E,#5A6FBB)"></div>
+          <div class="palette-label">Dusk</div>
+        </div>
+        <div class="palette-opt" id="popt-mono" onclick="selectPalette('mono')">
+          <div class="palette-swatch" style="background:linear-gradient(135deg,#0E0E0C,#C8C4BA)"></div>
+          <div class="palette-label">Mono</div>
+        </div>
+        <div class="palette-opt" id="popt-clay" onclick="selectPalette('clay')">
+          <div class="palette-swatch" style="background:linear-gradient(135deg,#1E1714,#C47A4A)"></div>
+          <div class="palette-label">Clay</div>
+        </div>
+        <div class="palette-opt" id="popt-none" onclick="selectPalette('none')">
+          <div class="palette-swatch" style="background:linear-gradient(135deg,#1A1A1A,#3A3A3A)"></div>
+          <div class="palette-label">Original</div>
         </div>
       </div>
 
@@ -852,7 +906,24 @@ function renderACWRChart(acwr){
 // ════════════ EXPORT ════════════
 // ════════════ EXPORT STATE ════════════
 let uploadedPhoto=null;
-let selectedData={days:true,pct:true,acwr:true,load:true,week:true,bars:true};
+let selectedData={weeks:true,pct:true,acwr:true,thisweek:true,knee:true,bars:true,
+  lastsession:false,load:false,week:false,totalmin:false,streak:false,avgrpe:false};
+let selectedPalette="fire";
+
+const PALETTES={
+  fire:   {shadow:[26,26,24],   highlight:[217,95,43]},   // asphalt → fire
+  canopy: {shadow:[19,32,26],   highlight:[74,124,89]},   // dark green → canopy
+  dusk:   {shadow:[21,21,30],   highlight:[90,111,187]},  // dark navy → dusk blue
+  mono:   {shadow:[14,14,12],   highlight:[200,196,186]}, // asphalt → stone
+  clay:   {shadow:[30,23,20],   highlight:[196,122,74]},  // dark clay → terracotta
+};
+
+function selectPalette(p){
+  selectedPalette=p;
+  document.querySelectorAll(".palette-opt").forEach(el=>el.classList.remove("selected"));
+  document.getElementById("popt-"+p).classList.add("selected");
+  if(uploadedPhoto) generatePreview();
+}
 
 function openExportModal(){document.getElementById("exportModal").classList.add("open");}
 function closeExportModal(){document.getElementById("exportModal").classList.remove("open");}
@@ -940,18 +1011,20 @@ function drawGraphic(ctx,W,H,isStory,isPreview){
     const tc=tmp.getContext("2d");
     tc.drawImage(uploadedPhoto,sx,sy,sw,sh,0,0,W,H);
 
-    // Apply duotone: shadows → asphalt (#1A1A18), highlights → fire (#D95F2B)
-    const imageData=tc.getImageData(0,0,W,H);
-    const data=imageData.data;
-    const shadow=[26,26,24];   // #1A1A18
-    const highlight=[217,95,43]; // #D95F2B
-    for(let i=0;i<data.length;i+=4){
-      const lum=(data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114)/255;
-      data[i]  =Math.round(shadow[0]+(highlight[0]-shadow[0])*lum);
-      data[i+1]=Math.round(shadow[1]+(highlight[1]-shadow[1])*lum);
-      data[i+2]=Math.round(shadow[2]+(highlight[2]-shadow[2])*lum);
+    // Apply duotone using selected palette ("none" = leave photo as-is)
+    if(selectedPalette!=="none"){
+      const imageData=tc.getImageData(0,0,W,H);
+      const data=imageData.data;
+      const pal=PALETTES[selectedPalette]||PALETTES.fire;
+      const shadow=pal.shadow,highlight=pal.highlight;
+      for(let i=0;i<data.length;i+=4){
+        const lum=(data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114)/255;
+        data[i]  =Math.round(shadow[0]+(highlight[0]-shadow[0])*lum);
+        data[i+1]=Math.round(shadow[1]+(highlight[1]-shadow[1])*lum);
+        data[i+2]=Math.round(shadow[2]+(highlight[2]-shadow[2])*lum);
+      }
+      tc.putImageData(imageData,0,0);
     }
-    tc.putImageData(imageData,0,0);
     ctx.drawImage(tmp,0,0);
 
     // 3. Gradient overlays for legibility
@@ -980,10 +1053,12 @@ function getStats(){
   const active=sessions.filter(s=>s.type!=="rest");
   const done=sessions.filter(s=>LOGS[s.key]?.status==="done").length;
   const mod=sessions.filter(s=>LOGS[s.key]?.status==="modified").length;
+  const skip=sessions.filter(s=>LOGS[s.key]?.status==="skipped").length;
   const total=active.length;
   const pct=total?Math.round((done+mod)/total*100):0;
   const raceDate=new Date("2026-09-12");
   const daysToRace=Math.max(0,Math.ceil((raceDate-new Date())/(1000*60*60*24)));
+  const weeksToGo=Math.max(0,Math.ceil(daysToRace/7));
   let totalActual=0,totalLoad=0;
   for(let w=1;w<=12;w++){totalActual+=weekActual(w);totalLoad+=weeklyLoad(w);}
   const acwr=calcACWR();
@@ -991,189 +1066,267 @@ function getStats(){
   const acwrVal=latest?.ratio;
   let currentWeek=1;
   for(let w=1;w<=12;w++){if(sessions.filter(s=>s.weekNum===w&&s.type!=="rest").some(s=>LOGS[s.key]?.status))currentWeek=w;}
-  return{done,mod,total,pct,daysToRace,totalActual,totalLoad,acwrVal,currentWeek};
+  const rpeVals=sessions.filter(s=>LOGS[s.key]?.rpe>0).map(s=>LOGS[s.key].rpe);
+  const avgRpe=rpeVals.length?(rpeVals.reduce((a,b)=>a+b,0)/rpeVals.length).toFixed(1):"—";
+
+  // Last completed session
+  const loggedSessions=sessions.filter(s=>s.type!=="rest"&&(LOGS[s.key]?.status==="done"||LOGS[s.key]?.status==="modified"));
+  const lastSession=loggedSessions.length?loggedSessions[loggedSessions.length-1]:null;
+
+  // This week's sessions
+  const thisWeekSessions=sessions.filter(s=>s.weekNum===currentWeek&&s.type!=="rest");
+
+  // Knee data
+  const kneeVals=Object.keys(KNEE).filter(k=>KNEE[k]>0).map(k=>KNEE[k]);
+  const peakKnee=kneeVals.length?Math.max(...kneeVals):null;
+  const avgKnee=kneeVals.length?(kneeVals.reduce((a,b)=>a+b,0)/kneeVals.length).toFixed(1):null;
+
+  return{done,mod,skip,total,pct,daysToRace,weeksToGo,totalActual,totalLoad,acwrVal,currentWeek,
+    avgRpe,lastSession,thisWeekSessions,peakKnee,avgKnee,kneeVals};
 }
 
-// ── Square layout ─────────────────────────────────────────────────────────────
-function drawDataSquare(ctx,W,H){
-  const s=getStats();
-  const sc=W/1080; // scale factor
-  const f=(sz,wt)=>`${wt||400} ${Math.round(sz*sc)}px 'DM Sans',sans-serif`;
-
-  // Fire accent bars
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,Math.round(5*sc));
-
-  // Logo
-  ctx.textAlign="left";
-  ctx.font=f(22,500);ctx.fillStyle="#C8C4BA";
-  const ux=Math.round(60*sc),uy=Math.round(64*sc);
-  ctx.fillText("ULTRA",ux,uy);
-  ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",ux+ctx.measureText("ULTRA").width,uy);
-  ctx.font=f(14,300);ctx.fillStyle="#6B6862";
-  ctx.fillText("Surf Coast Century 50km · 12 Sep 2026",ux,Math.round(88*sc));
-
-  // DAYS TO RACE — hero
-  if(selectedData.days){
-    ctx.textAlign="center";
-    ctx.font=f(uploadedPhoto?220:200,700);
-    ctx.fillStyle="#D95F2B";
-    ctx.fillText(s.daysToRace,W/2,Math.round((uploadedPhoto?340:320)*sc));
-    ctx.font=f(18,500);ctx.fillStyle=uploadedPhoto?"rgba(245,242,236,0.7)":"#6B6862";
-    ctx.fillText("DAYS TO RACE",W/2,Math.round((uploadedPhoto?372:352)*sc));
-  }
-
-  // Metrics row
-  const metrics=[];
-  if(selectedData.pct) metrics.push({v:`${s.pct}%`,l:"COMPLETE"});
-  if(selectedData.week) metrics.push({v:`W${s.currentWeek}`,l:"WEEK"});
-  if(selectedData.load) metrics.push({v:s.totalLoad>0?s.totalLoad.toLocaleString():"—",l:"LOAD AU",col:"#4A7C59"});
-  if(selectedData.acwr) metrics.push({v:s.acwrVal?s.acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(s.acwrVal)});
-
-  if(metrics.length>0){
-    const mY=Math.round((selectedData.days?420:300)*sc);
-    const mW=W/metrics.length;
-    metrics.forEach((m,i)=>{
-      const mx=i*mW+mW/2;
-      // Card bg
-      if(!uploadedPhoto){
-        ctx.fillStyle="rgba(26,26,24,0.9)";
-        roundRect(ctx,i*mW+Math.round(8*sc),mY-Math.round(10*sc),mW-Math.round(16*sc),Math.round(100*sc),Math.round(10*sc));
-        ctx.fill();
-      }else{
-        // Glass pill
-        ctx.fillStyle="rgba(10,10,8,0.55)";
-        roundRect(ctx,i*mW+Math.round(8*sc),mY-Math.round(10*sc),mW-Math.round(16*sc),Math.round(100*sc),Math.round(10*sc));
-        ctx.fill();
-      }
-      ctx.textAlign="center";
-      ctx.font=f(42,700);ctx.fillStyle=m.col||"#F5F2EC";
-      ctx.fillText(m.v,mx,mY+Math.round(50*sc));
-      ctx.font=f(11,500);ctx.fillStyle="#6B6862";
-      ctx.fillText(m.l,mx,mY+Math.round(78*sc));
-    });
-  }
-
-  // Progress bars
-  if(selectedData.bars){
-    const barY=Math.round(560*sc);
-    const barH=Math.round(6*sc);
-    const barGap=Math.round(34*sc);
-    const barX=Math.round(60*sc);
-    const barW=W-Math.round(120*sc)-Math.round(60*sc);
-    ctx.font=f(13,500);ctx.fillStyle="#F5F2EC";ctx.textAlign="left";
-    ctx.fillText("WEEKLY PROGRESS",barX,barY-Math.round(12*sc));
-    for(let w=1;w<=12;w++){
-      const p=weekPrescribed(w),a=weekActual(w);
-      const p2=p?Math.min(100,Math.round(a/p*100)):0;
-      const col=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
-      const y=barY+(w-1)*barGap;
-      ctx.fillStyle=uploadedPhoto?"rgba(255,255,255,0.12)":"#1A1A18";
-      ctx.fillRect(barX+Math.round(36*sc),y,barW,barH);
-      if(p2>0){ctx.fillStyle=col;ctx.fillRect(barX+Math.round(36*sc),y,barW*(p2/100),barH);}
-      ctx.fillStyle="#555550";ctx.font=f(10,400);ctx.textAlign="left";
-      ctx.fillText("W"+w,barX,y+Math.round(6*sc));
-      if(p2>0){ctx.fillStyle=col;ctx.textAlign="right";ctx.fillText(p2+"%",W-Math.round(55*sc),y+Math.round(6*sc));ctx.textAlign="left";}
-    }
-  }
-
-  // Footer
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-Math.round(5*sc),W,Math.round(5*sc));
-  ctx.fillStyle="#444440";ctx.font=f(12,400);ctx.textAlign="right";
-  ctx.fillText("ultranormal.github.io",W-Math.round(40*sc),H-Math.round(16*sc));
+// Returns an ordered list of block keys to render, based on toggles
+function getActiveBlocks(){
+  const order=["weeks","pct","acwr","week","load","totalmin","streak","avgrpe","lastsession","thisweek","knee","bars"];
+  return order.filter(k=>selectedData[k]);
 }
 
-// ── Story layout ─────────────────────────────────────────────────────────────
-function drawDataStory(ctx,W,H){
+// ── Universal block-stacking renderer ──────────────────────────────────────────
+function drawDataSquare(ctx,W,H){drawDataUniversal(ctx,W,H,false);}
+function drawDataStory(ctx,W,H){drawDataUniversal(ctx,W,H,true);}
+
+function drawDataUniversal(ctx,W,H,isStory){
   const s=getStats();
   const sc=W/1080;
   const f=(sz,wt)=>`${wt||400} ${Math.round(sz*sc)}px 'DM Sans',sans-serif`;
+  const photoMode=!!uploadedPhoto;
+  const cardBg=photoMode?"rgba(10,10,8,0.55)":"rgba(26,26,24,0.95)";
+  const subCol=photoMode?"rgba(200,196,186,0.75)":"#6B6862";
+  const lineCol=photoMode?"rgba(255,255,255,0.12)":"#2A2A28";
+  const trackCol=photoMode?"rgba(255,255,255,0.12)":"#1A1A18";
 
-  // Accent bars
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,Math.round(7*sc));
-  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-Math.round(7*sc),W,Math.round(7*sc));
+  // ── Top accent bar ──
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,0,W,Math.round((isStory?7:5)*sc));
+  if(isStory) ctx.fillRect(0,H-Math.round(7*sc),W,Math.round(7*sc));
 
-  // Logo
+  // ── Logo ──
   ctx.textAlign="left";
-  ctx.font=f(26,500);ctx.fillStyle="#C8C4BA";
-  const ux=Math.round(56*sc),uy=Math.round(80*sc);
+  ctx.font=f(isStory?26:22,500);ctx.fillStyle="#C8C4BA";
+  const ux=Math.round((isStory?56:60)*sc),uy=Math.round((isStory?80:64)*sc);
   ctx.fillText("ULTRA",ux,uy);
   ctx.fillStyle="#D95F2B";ctx.fillText("NORMAL",ux+ctx.measureText("ULTRA").width,uy);
-  ctx.font=f(15,300);ctx.fillStyle="#6B6862";ctx.fillText("Training Journal",ux,Math.round(110*sc));
+  ctx.font=f(isStory?15:14,300);ctx.fillStyle=subCol;
+  ctx.fillText(isStory?"Training Journal":"Surf Coast Century 50km · 12 Sep 2026",ux,Math.round((isStory?110:88)*sc));
 
-  // Race date
-  ctx.textAlign="center";
-  ctx.font=f(64,700);ctx.fillStyle="#F5F2EC";ctx.fillText("12 SEP 2026",W/2,Math.round(220*sc));
-  ctx.font=f(16,300);ctx.fillStyle="#6B6862";ctx.fillText("Surf Coast Century · 50km",W/2,Math.round(252*sc));
+  let cy=Math.round((isStory?150:110)*sc); // cursor Y — running layout position
+  const pad=Math.round((isStory?56:60)*sc);
+  const contentW=W-pad*2;
 
-  // Divider
-  ctx.strokeStyle=uploadedPhoto?"rgba(255,255,255,0.15)":"#2A2A28";ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(Math.round(56*sc),Math.round(274*sc));ctx.lineTo(W-Math.round(56*sc),Math.round(274*sc));ctx.stroke();
+  const blocks=getActiveBlocks();
+  const heroBlocks=["weeks"]; // get giant hero treatment
+  const hasHero=blocks.includes("weeks");
 
-  // DAYS — giant
-  if(selectedData.days){
+  // ── HERO: Weeks to go ──
+  if(hasHero){
     ctx.textAlign="center";
-    ctx.font=f(260,700);ctx.fillStyle="#D95F2B";
-    ctx.fillText(s.daysToRace,W/2,Math.round(600*sc));
-    ctx.font=f(22,500);ctx.fillStyle=uploadedPhoto?"rgba(200,196,186,0.8)":"#6B6862";
-    ctx.fillText("DAYS TO RACE",W/2,Math.round(646*sc));
+    const heroSize=isStory?240:(photoMode?200:180);
+    ctx.font=f(heroSize,700);ctx.fillStyle="#D95F2B";
+    cy+=Math.round(heroSize*0.62*sc);
+    ctx.fillText(s.weeksToGo,W/2,cy);
+    ctx.font=f(isStory?22:18,500);ctx.fillStyle=subCol;
+    cy+=Math.round(34*sc);
+    ctx.fillText(s.weeksToGo===1?"WEEK TO GO":"WEEKS TO GO",W/2,cy);
+    cy+=Math.round((isStory?50:36)*sc);
+
+    ctx.strokeStyle=lineCol;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad,cy);ctx.lineTo(W-pad,cy);ctx.stroke();
+    cy+=Math.round((isStory?40:28)*sc);
   }
 
-  ctx.strokeStyle=uploadedPhoto?"rgba(255,255,255,0.1)":"#2A2A28";ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(Math.round(56*sc),Math.round(680*sc));ctx.lineTo(W-Math.round(56*sc),Math.round(680*sc));ctx.stroke();
+  // ── METRIC ROW: pct, acwr, week, load, totalmin, avgrpe (small cards, up to 4 per row) ──
+  const metricKeys=["pct","acwr","week","load","totalmin","avgrpe"];
+  const activeMetrics=[];
+  if(selectedData.pct) activeMetrics.push({v:`${s.pct}%`,l:"COMPLETE",col:"#F5F2EC"});
+  if(selectedData.acwr) activeMetrics.push({v:s.acwrVal?s.acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(s.acwrVal)});
+  if(selectedData.week) activeMetrics.push({v:`W${s.currentWeek}`,l:"WEEK",col:"#F5F2EC"});
+  if(selectedData.load) activeMetrics.push({v:s.totalLoad>0?s.totalLoad.toLocaleString():"—",l:"LOAD AU",col:"#4A7C59"});
+  if(selectedData.totalmin) activeMetrics.push({v:s.totalActual.toLocaleString(),l:"MIN TRAINED",col:"#F5F2EC"});
+  if(selectedData.avgrpe) activeMetrics.push({v:s.avgRpe,l:"AVG RPE",col:"#9A7ACA"});
 
-  // 2×2 grid
-  const gridMetrics=[];
-  if(selectedData.pct) gridMetrics.push({v:`${s.pct}%`,l:"PLAN COMPLETE",col:"#F5F2EC"});
-  if(selectedData.week) gridMetrics.push({v:`W${s.currentWeek}/12`,l:"CURRENT WEEK",col:"#F5F2EC"});
-  if(selectedData.load) gridMetrics.push({v:s.totalLoad>0?s.totalLoad.toLocaleString():"—",l:"TOTAL LOAD AU",col:"#4A7C59"});
-  if(selectedData.acwr) gridMetrics.push({v:s.acwrVal?s.acwrVal.toFixed(2):"—",l:"ACWR",col:acwrColor(s.acwrVal)});
-
-  if(gridMetrics.length>0){
-    const gY=Math.round(720*sc);
-    const cols=Math.min(2,gridMetrics.length);
-    const gW=W/cols;
-    const rowH=Math.round(180*sc);
-    gridMetrics.forEach((m,i)=>{
-      const col=i%cols,row=Math.floor(i/cols);
-      const gx=col*gW+gW/2;
-      const gy=gY+row*rowH;
-      if(uploadedPhoto){
-        ctx.fillStyle="rgba(10,10,8,0.45)";
-        roundRect(ctx,col*gW+Math.round(10*sc),gy,gW-Math.round(20*sc),rowH-Math.round(16*sc),Math.round(12*sc));
-        ctx.fill();
-      }
+  if(activeMetrics.length>0){
+    const perRow=isStory?2:Math.min(4,activeMetrics.length);
+    const rows=Math.ceil(activeMetrics.length/perRow);
+    const cardH=Math.round((isStory?150:100)*sc);
+    const cardGap=Math.round(10*sc);
+    activeMetrics.forEach((m,i)=>{
+      const row=Math.floor(i/perRow);
+      const colIdx=i%perRow;
+      const thisRowCount=Math.min(perRow,activeMetrics.length-row*perRow);
+      const cw=(contentW-(thisRowCount-1)*cardGap)/thisRowCount;
+      const cx=pad+colIdx*(cw+cardGap);
+      const yy=cy+row*(cardH+cardGap);
+      ctx.fillStyle=cardBg;
+      roundRect(ctx,cx,yy,cw,cardH,Math.round(10*sc));ctx.fill();
       ctx.textAlign="center";
-      ctx.font=f(64,700);ctx.fillStyle=m.col;
-      ctx.fillText(m.v,gx,gy+Math.round(80*sc));
-      ctx.font=f(14,500);ctx.fillStyle="#6B6862";
-      ctx.fillText(m.l,gx,gy+Math.round(112*sc));
+      ctx.font=f(isStory?48:38,700);ctx.fillStyle=m.col;
+      ctx.fillText(m.v,cx+cw/2,yy+Math.round((isStory?70:50)*sc));
+      ctx.font=f(isStory?13:11,500);ctx.fillStyle=subCol;
+      ctx.fillText(m.l,cx+cw/2,yy+Math.round((isStory?100:78)*sc));
     });
+    cy+=rows*(cardH+cardGap)+Math.round(16*sc);
   }
 
-  // Progress bars
+  // ── STREAK: sessions done/modified/skipped ──
+  if(selectedData.streak){
+    const streakH=Math.round((isStory?90:64)*sc);
+    ctx.fillStyle=cardBg;
+    roundRect(ctx,pad,cy,contentW,streakH,Math.round(10*sc));ctx.fill();
+    const items=[
+      {v:s.done,l:"DONE",col:"#4A7C59"},
+      {v:s.mod,l:"MODIFIED",col:"#5A8ABB"},
+      {v:s.skip,l:"SKIPPED",col:"#C43020"},
+    ];
+    const iw=contentW/3;
+    items.forEach((it,i)=>{
+      const cx=pad+i*iw+iw/2;
+      ctx.textAlign="center";
+      ctx.font=f(isStory?32:24,700);ctx.fillStyle=it.col;
+      ctx.fillText(it.v,cx,cy+Math.round((isStory?38:28)*sc));
+      ctx.font=f(isStory?12:10,500);ctx.fillStyle=subCol;
+      ctx.fillText(it.l,cx,cy+Math.round((isStory?60:46)*sc));
+    });
+    cy+=streakH+Math.round(20*sc);
+  }
+
+  // ── LAST SESSION ──
+  if(selectedData.lastsession&&s.lastSession){
+    const ls=s.lastSession;
+    const log=LOGS[ls.key];
+    const load=sessionLoad(ls.key,ls.dur);
+    ctx.textAlign="left";
+    ctx.font=f(isStory?16:13,500);ctx.fillStyle="#F5F2EC";
+    ctx.fillText("LAST SESSION",pad,cy);
+    cy+=Math.round((isStory?28:20)*sc);
+    const lsH=Math.round((isStory?130:96)*sc);
+    ctx.fillStyle=cardBg;
+    roundRect(ctx,pad,cy,contentW,lsH,Math.round(10*sc));ctx.fill();
+    // dot
+    const dotR=Math.round(7*sc);
+    ctx.beginPath();ctx.arc(pad+Math.round(24*sc),cy+Math.round(28*sc),dotR,0,Math.PI*2);
+    ctx.fillStyle=TYPE_COLOR[ls.type]||"#888";ctx.fill();
+    ctx.textAlign="left";
+    ctx.font=f(isStory?18:14,500);ctx.fillStyle="#F5F2EC";
+    ctx.fillText(`W${ls.weekNum} ${ls.day}`,pad+Math.round(44*sc),cy+Math.round(34*sc));
+    ctx.font=f(isStory?14:12,400);ctx.fillStyle=subCol;
+    // wrap session text simply
+    const maxChars=isStory?54:48;
+    const txt=ls.s.length>maxChars?ls.s.slice(0,maxChars-1)+"…":ls.s;
+    ctx.fillText(txt,pad+Math.round(44*sc),cy+Math.round((isStory?60:54)*sc));
+    if(log&&log.rpe){
+      ctx.textAlign="right";
+      ctx.font=f(isStory?20:16,700);ctx.fillStyle="#D95F2B";
+      ctx.fillText(`RPE ${log.rpe}`,pad+contentW-Math.round(20*sc),cy+Math.round((isStory?44:32)*sc));
+      if(load){
+        ctx.font=f(isStory?12:10,400);ctx.fillStyle=subCol;
+        ctx.fillText(`${load.toLocaleString()} AU`,pad+contentW-Math.round(20*sc),cy+Math.round((isStory?64:50)*sc));
+      }
+    }
+    cy+=lsH+Math.round(20*sc);
+  }
+
+  // ── THIS WEEK'S SESSIONS ──
+  if(selectedData.thisweek&&s.thisWeekSessions.length){
+    ctx.textAlign="left";
+    ctx.font=f(isStory?16:13,500);ctx.fillStyle="#F5F2EC";
+    ctx.fillText(`WEEK ${s.currentWeek} SESSIONS`,pad,cy);
+    cy+=Math.round((isStory?28:20)*sc);
+    const rowH=Math.round((isStory?44:32)*sc);
+    const twH=rowH*s.thisWeekSessions.length+Math.round(16*sc);
+    ctx.fillStyle=cardBg;
+    roundRect(ctx,pad,cy,contentW,twH,Math.round(10*sc));ctx.fill();
+    let ry=cy+Math.round(14*sc);
+    s.thisWeekSessions.forEach(ts=>{
+      const log=LOGS[ts.key];
+      const status=log?.status;
+      const dotR=Math.round(5*sc);
+      ctx.beginPath();ctx.arc(pad+Math.round(22*sc),ry+Math.round(8*sc),dotR,0,Math.PI*2);
+      ctx.fillStyle=TYPE_COLOR[ts.type]||"#888";ctx.fill();
+      ctx.textAlign="left";
+      ctx.font=f(isStory?15:12,500);
+      ctx.fillStyle=status==="done"?"#4A7C59":status==="modified"?"#5A8ABB":status==="skipped"?"#C43020":subCol;
+      ctx.fillText(ts.day,pad+Math.round(40*sc),ry+Math.round(13*sc));
+      ctx.font=f(isStory?14:11,400);ctx.fillStyle=photoMode?"rgba(245,242,236,0.85)":"#C8C4BA";
+      const maxC=isStory?42:34;
+      const t=ts.s.length>maxC?ts.s.slice(0,maxC-1)+"…":ts.s;
+      ctx.fillText(t,pad+Math.round(100*sc),ry+Math.round(13*sc));
+      const mark=status==="done"?"✓":status==="modified"?"~":status==="skipped"?"✕":"·";
+      ctx.textAlign="right";
+      ctx.font=f(isStory?16:13,700);
+      ctx.fillStyle=status==="done"?"#4A7C59":status==="modified"?"#5A8ABB":status==="skipped"?"#C43020":subCol;
+      ctx.fillText(mark,pad+contentW-Math.round(16*sc),ry+Math.round(13*sc));
+      ry+=rowH;
+    });
+    cy+=twH+Math.round(20*sc);
+  }
+
+  // ── KNEE PAIN TRACKER ──
+  if(selectedData.knee&&s.kneeVals.length){
+    ctx.textAlign="left";
+    ctx.font=f(isStory?16:13,500);ctx.fillStyle="#F5F2EC";
+    ctx.fillText("KNEE PAIN",pad,cy);
+    cy+=Math.round((isStory?28:20)*sc);
+    const kH=Math.round((isStory?120:88)*sc);
+    ctx.fillStyle=cardBg;
+    roundRect(ctx,pad,cy,contentW,kH,Math.round(10*sc));ctx.fill();
+    const kCol=s.peakKnee<=3?"#4A7C59":s.peakKnee<=6?"#D4A020":"#C43020";
+    ctx.textAlign="left";
+    ctx.font=f(isStory?44:32,700);ctx.fillStyle=kCol;
+    ctx.fillText(`${s.peakKnee}/10`,pad+Math.round(20*sc),cy+Math.round((isStory?56:42)*sc));
+    ctx.font=f(isStory?13:11,500);ctx.fillStyle=subCol;
+    ctx.fillText("PEAK PAIN",pad+Math.round(20*sc),cy+Math.round((isStory?80:62)*sc));
+
+    ctx.textAlign="right";
+    ctx.font=f(isStory?44:32,700);ctx.fillStyle=kCol;
+    ctx.fillText(`${s.avgKnee}/10`,pad+contentW-Math.round(20*sc),cy+Math.round((isStory?56:42)*sc));
+    ctx.font=f(isStory?13:11,500);ctx.fillStyle=subCol;
+    ctx.fillText("AVERAGE",pad+contentW-Math.round(20*sc),cy+Math.round((isStory?80:62)*sc));
+    cy+=kH+Math.round(20*sc);
+  }
+
+  // ── WEEKLY PROGRESS BARS ──
   if(selectedData.bars){
-    const bY=Math.round(1340*sc);
-    const bH=Math.round(8*sc);
-    const bGap=Math.round(42*sc);
-    const bX=Math.round(56*sc);
-    const bW=W-Math.round(112*sc)-Math.round(70*sc);
-    ctx.font=f(18,500);ctx.fillStyle="#F5F2EC";ctx.textAlign="left";
-    ctx.fillText("WEEKLY PROGRESS",bX,bY-Math.round(16*sc));
+    ctx.textAlign="left";
+    ctx.font=f(isStory?18:13,500);ctx.fillStyle="#F5F2EC";
+    ctx.fillText("WEEKLY PROGRESS",pad,cy);
+    cy+=Math.round((isStory?24:18)*sc);
+    const barH=Math.round((isStory?8:6)*sc);
+    const barGap=Math.round((isStory?38:26)*sc);
+    const labelW=Math.round((isStory?44:34)*sc);
+    const pctW=Math.round((isStory?56:42)*sc);
+    const barW=contentW-labelW-pctW;
     for(let w=1;w<=12;w++){
       const p=weekPrescribed(w),a=weekActual(w);
       const p2=p?Math.min(100,Math.round(a/p*100)):0;
       const col=p2>=90?"#4A7C59":p2>=60?"#D4A020":p2>0?"#C43020":"#2A2A28";
-      const y=bY+(w-1)*bGap;
-      ctx.fillStyle=uploadedPhoto?"rgba(255,255,255,0.1)":"#1A1A18";
-      ctx.fillRect(bX+Math.round(44*sc),y,bW,bH);
-      if(p2>0){ctx.fillStyle=col;ctx.fillRect(bX+Math.round(44*sc),y,bW*(p2/100),bH);}
-      ctx.fillStyle="#555550";ctx.font=f(13,400);ctx.textAlign="left";ctx.fillText("W"+w,bX,y+Math.round(7*sc));
-      if(p2>0){ctx.fillStyle=col;ctx.textAlign="right";ctx.fillText(p2+"%",W-Math.round(56*sc),y+Math.round(7*sc));ctx.textAlign="left";}
+      const y=cy+(w-1)*barGap;
+      ctx.fillStyle=trackCol;
+      ctx.fillRect(pad+labelW,y,barW,barH);
+      if(p2>0){ctx.fillStyle=col;ctx.fillRect(pad+labelW,y,barW*(p2/100),barH);}
+      ctx.fillStyle=subCol;ctx.font=f(isStory?13:10,400);ctx.textAlign="left";
+      ctx.fillText("W"+w,pad,y+Math.round(7*sc));
+      if(p2>0){ctx.fillStyle=col;ctx.textAlign="right";ctx.fillText(p2+"%",pad+contentW,y+Math.round(7*sc));ctx.textAlign="left";}
     }
+    cy+=12*barGap+Math.round(16*sc);
   }
 
-  ctx.fillStyle="#444440";ctx.font=f(15,400);ctx.textAlign="center";
-  ctx.fillText(`${s.totalLoad.toLocaleString()} AU load · ${s.done+s.mod} sessions done`,W/2,H-Math.round(28*sc));
+  // ── Footer ──
+  ctx.fillStyle="#D95F2B";ctx.fillRect(0,H-Math.round(5*sc),W,Math.round(5*sc));
+  ctx.fillStyle="#444440";ctx.font=f(isStory?15:12,400);ctx.textAlign=isStory?"center":"right";
+  if(isStory){
+    ctx.fillText(`${s.totalLoad.toLocaleString()} AU load · ${s.done+s.mod} sessions done`,W/2,H-Math.round(28*sc));
+  }else{
+    ctx.fillText("ultranormal.github.io",W-Math.round(40*sc),H-Math.round(16*sc));
+  }
 }
 
 async function doExport(){
