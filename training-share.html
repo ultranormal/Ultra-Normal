@@ -536,7 +536,7 @@ canvas{display:block;width:100%;height:auto;border-radius:8px}
 
 <script>
 // ════════════ CONFIG ════════════
-const SCRIPT_URL_KEY = "scc_script_url";
+const SCRIPT_URL_KEY = "scc_share_script_url"; // separate from tracker — never touches scc_backup
 const TYPE_COLOR = {easy:"#4A7C59",mod:"#8A6C20",hard:"#C43020",long:"#1A5A6E",rest:"#555550",strength:"#5A3A7A"};
 const TYPE_LABEL = {easy:"Easy",mod:"Threshold",hard:"Intervals",long:"Long Run",rest:"Rest",strength:"Strength"};
 
@@ -642,9 +642,9 @@ async function loadData(){
     setSyncStatus("synced","Live");
     render();
   }catch(e){
-    const local=localStorage.getItem("scc_backup");
-    if(local){try{const d=JSON.parse(local);LOGS=d.logs||{};KNEE=d.knee||{};}catch(e){}}
-    setSyncStatus("error","Cached data");
+    // Share page has no local cache — just show empty state
+    // Never reads scc_backup to avoid corrupting the tracker's local data
+    setSyncStatus("error","Can't reach sheet — check connection");
     render();
   }
 }
